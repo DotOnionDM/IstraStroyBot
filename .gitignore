@@ -4,3 +4,4 @@ config.py
 *.json
 venv
 *downloaded_files*
+.idea
