@@ -10,7 +10,7 @@ from cart import cart
 
 def register_handlers_cart(dp: Dispatcher):
     dp.register_callback_query_handler(h_cart_view_query, state=States.cart_view_query)
-    dp.register_message_handler(h_change_cnt, state=States.change_cnt)
+    dp.register_message_handler(h_change_cnt, state=States.change_cnt_id)
     dp.register_message_handler(h_delete_one, state=States.delete_one)
     dp.register_message_handler(h_delete_all, state=States.delete_all)
     dp.register_message_handler(h_payment, state=States.payment)
@@ -25,8 +25,8 @@ async def h_cart_view_query(callback: CBQ, state: FSMContext):
         await States.choose_shop.set()
     elif data == "change":
         await bot.send_message(chat_id=callback.from_user.id,
-                               text='Здесь будет возможность изменить количество товара')
-        await States.change_cnt.set()
+                               text='Введите ID товара, количество которого вы хотите изменить.')
+        await States.change_cnt_id.set()
     elif data == "del_one":
         await bot.send_message(chat_id=callback.from_user.id,
                                text='Введите ID товара, который хотите удалить из корзины.')
@@ -41,9 +41,20 @@ async def h_cart_view_query(callback: CBQ, state: FSMContext):
         await States.payment.set()
 
 
+async def h_change_cnt(msg: MSG, state: FSMContext):
+    id_item = int(msg.text.strip())
+    item = cart.item_info(msg.from_user.id, id_item)
+    print(item)
+    name = item[3]
+    price = item[4]
+    await state.update_data(id_item=id_item)
+    await state.update_data(shop=item[1])
+    await state.update_data(article=item[2])
+    await state.update_data(name=name)
+    await state.update_data(price=price)
+    await msg.answer(f"{name}\n\n{price} ₽\n\nВведите новое количество для этого товара.")
+    await States.change_cnt_cnt.set()
 
-async def h_change_cnt(msg: MSG):
-    pass
 
 async def h_delete_one(msg: MSG):
     id_item = int(msg.text.strip())
@@ -63,9 +74,8 @@ async def h_delete_all(msg: MSG):
     txt = await cart.def_cart_view(msg.from_user.id)
     await States.cart_view_query.set()
     return await msg.answer(txt, reply_markup=kb.kb_cart())
-        
 
 
 async def h_payment():
     pass
-    
+

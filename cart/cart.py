@@ -1,5 +1,5 @@
 import sqlite3
-from states import States
+
 
 
 def create_table(user_id: str) -> None:
@@ -43,12 +43,32 @@ def select_all(user_id: str) -> list:
     return res
 
 
+def item_info(user_id: str, id_item: int):
+    con = sqlite3.connect("data.db")
+    cur = con.cursor()
+    create_table(user_id)
+    item = cur.execute(f"SELECT * FROM '{user_id}' WHERE ID = {id_item}").fetchone()
+    con.close()
+    return item
+
+
 def change_cnt(user_id: str, user_data: dict) -> None:
+    id_item = user_data['id_item']
+    new_cnt = user_data['count']
+    new_sum = user_data['sum']
+    con = sqlite3.connect("data.db")
+    cur = con.cursor()
+    create_table(user_id)
+    cur.execute(f"UPDATE '{user_id}' SET Count = {new_cnt}, Sum = {new_sum} WHERE ID = {id_item}")
+    con.commit()
+    con.close()
+
+
+def change_cnt_by_art(user_id: str, user_data: dict) -> None:
     shop = user_data['shop']
     art = user_data['article']
     new_cnt = user_data['count']
     new_sum = user_data['sum']
-
     con = sqlite3.connect("data.db")
     cur = con.cursor()
     create_table(user_id)
@@ -57,7 +77,7 @@ def change_cnt(user_id: str, user_data: dict) -> None:
     con.close()
 
 
-def delete_one(user_id: str, id_item: int) -> None:
+def delete_one(user_id: str, id_item: int) -> bool:
     con = sqlite3.connect("data.db")
     cur = con.cursor()
     was = cur.execute(f"SELECT * FROM '{user_id}' WHERE ID = {id_item}").fetchone()

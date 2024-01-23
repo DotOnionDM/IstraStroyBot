@@ -18,7 +18,9 @@ def register_handlers_add_product(dp: Dispatcher):
     dp.register_message_handler(h_vi_art, state=States.vi_art)
     dp.register_message_handler(h_count_msg, state=States.count)
     dp.register_callback_query_handler(h_count_cbq, state=States.count)
-    dp.register_callback_query_handler(h_not_add_in_cart, state=States.not_add_in_cart)
+    dp.register_message_handler(h_change_count_msg, state=States.change_cnt_cnt)
+    dp.register_callback_query_handler(h_change_count_cbq, state=States.change_cnt_cbq)
+    dp.register_callback_query_handler(h_not_add_in_cart, state=[States.not_add_in_cart, States.item_was_in_cart])
 
 
 async def def_ask_count(art, name, price, id, state: FSMContext):
@@ -70,18 +72,59 @@ async def h_vi_art(msg: MSG, state: FSMContext):
     await def_ask_count(article, ret[0], price, msg.from_user.id, state)
 
 
-async def h_count_msg(msg: MSG, state: FSMContext):
-    t = msg.text
-    if t.isdigit():
+async def def_count_msg(t, user_data, chat_id):
+    if t.isdigit() and int(t) > 0:
         cnt = int(t)
     else:
-        return await bot.send_message(chat_id=msg.from_user.id, text='Введите целое число:')
-    user_data = await state.get_data()
+        await bot.send_message(chat_id=chat_id, text='Некорректный ввод.')
+        await bot.send_message(chat_id=chat_id,
+                               text="Выберите магазин:",
+                               reply_markup=kb.kb_shop_choosing())
+        await States.choose_shop.set()
+        return None, None
     money = int(user_data['price']) * cnt
+    return cnt, money
+
+
+async def h_count_msg(msg: MSG, state: FSMContext):
+    t = msg.text
+    user_data = await state.get_data()
+    [cnt, money] = await def_count_msg(t, user_data, msg.from_user.id)
+    if cnt is None:
+        return
     await state.update_data(count=cnt)
     await state.update_data(sum=money)
     await msg.answer(text=f'Итоговая стоимость: {money}.\n\nДобавить в корзину?',
                      reply_markup=kb.kb_add_in_bag())
+
+
+async def h_change_count_msg(msg: MSG, state: FSMContext):
+    t = msg.text
+    user_data = await state.get_data()
+    [cnt, money] = await def_count_msg(t, user_data, msg.from_user.id)
+    if cnt is None:
+        return
+    await state.update_data(count=cnt)
+    await state.update_data(sum=money)
+    await msg.answer(text=f'Итоговая стоимость: {money}.\n\nСохранить изменения?',
+                     reply_markup=kb.kb_add_in_bag())
+    await States.change_cnt_cbq.set()
+
+
+async def h_change_count_cbq(callback: CBQ, state: FSMContext):
+    answer = callback.data
+    if answer == 'yes':
+        user_data = await state.get_data()
+        cart.change_cnt(callback.from_user.id, user_data)
+        await bot.send_message(chat_id=callback.from_user.id,
+                               text='Количество товара изменено.',
+                               reply_markup=kb.kb_continue_add())
+        await States.continue_choose_shop.set()
+    else:
+        await bot.send_message(chat_id=callback.from_user.id,
+                               text='Выберите следующее действие:',
+                               reply_markup=kb.kb_not_add_in_bag())
+        await States.not_add_in_cart.set()
 
 
 async def h_count_cbq(callback: CBQ, state: FSMContext):
@@ -107,10 +150,17 @@ async def h_count_cbq(callback: CBQ, state: FSMContext):
         await States.not_add_in_cart.set()
 
 
-async def h_not_add_in_cart(callback: CBQ):
+async def h_not_add_in_cart(callback: CBQ, state: FSMContext):
     answer = callback.data
     if answer == 'cnt':
-        await bot.send_message(callback.from_user.id, "Добавляем функцию изменения количества товара")
-        # await States.change_cnt.set()
+        user_data = await state.get_data()
+        cart.change_cnt_by_art(callback.from_user.id, user_data)
+        await bot.send_message(chat_id=callback.from_user.id,
+                               text='Количество товара изменено.',
+                               reply_markup=kb.kb_continue_add())
+        await States.continue_choose_shop.set()
     else:
-        await bot.send_message(callback.from_user.id, "Добавляем следующие действия")
+        await bot.send_message(chat_id=callback.from_user.id,
+                               text="Выберите магазин:",
+                               reply_markup=kb.kb_shop_choosing())
+        await States.choose_shop.set()

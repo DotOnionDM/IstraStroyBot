@@ -19,7 +19,9 @@ class States(StatesGroup):
     cart_view = State()
     cart_view_query = State()
 
-    change_cnt = State()
+    change_cnt_id = State()
+    change_cnt_cnt = State()
+    change_cnt_cbq = State()
     delete_one = State()
     delete_all = State()
 

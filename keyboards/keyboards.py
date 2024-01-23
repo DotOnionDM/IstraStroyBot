@@ -1,5 +1,6 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-
+from aiogram.dispatcher import FSMContext
+from states import States
 
 def kb_shop_choosing() -> InlineKeyboardMarkup:
     kb = InlineKeyboardMarkup()
@@ -19,6 +20,15 @@ def kb_add_in_bag() -> InlineKeyboardMarkup:
     yes = InlineKeyboardButton(text="Да", callback_data="yes")
     no = InlineKeyboardButton(text="Нет", callback_data="no")
     kb.add(yes, no)
+    return kb
+
+
+async def kb_change_cnt(state: FSMContext) -> InlineKeyboardMarkup:
+    kb = InlineKeyboardMarkup()
+    yes = InlineKeyboardButton(text="Да", callback_data="yes")
+    no = InlineKeyboardButton(text="Нет", callback_data="no")
+    kb.add(yes, no)
+    await States.change_cnt.set()
     return kb
 
 
