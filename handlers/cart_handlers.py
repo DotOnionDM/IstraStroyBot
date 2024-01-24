@@ -6,6 +6,7 @@ from aiogram.types import CallbackQuery as CBQ
 from aiogram.types import Message as MSG
 from aiogram import Dispatcher
 from cart import cart
+import payment
 
 
 def register_handlers_cart(dp: Dispatcher):
@@ -35,10 +36,15 @@ async def h_cart_view_query(callback: CBQ, state: FSMContext):
         await bot.send_message(chat_id=callback.from_user.id,
                                text='Для подтверждения удаления корзины, напишите "Да".')
         await States.delete_all.set()
+    elif data == "order":
+        await bot.send_message(chat_id=callback.from_user.id,
+                               text='Сейчас отправим ссылку для оплаты.')
+        await States.payment.set()
     else:
         await bot.send_message(chat_id=callback.from_user.id,
-                               text='Здесь будет форма для оформления заказа')
-        await States.payment.set()
+                               text='Выберите магазин:',
+                               reply_markup=kb.kb_shop_choosing())
+        await States.choose_shop.set()
 
 
 async def h_change_cnt(msg: MSG, state: FSMContext):
