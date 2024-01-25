@@ -33,17 +33,28 @@ async def h_choose_shop(callback: CBQ, state: FSMContext):
         return await bot.send_message(callback.from_user.id, txt, reply_markup=kb.kb_cart())
 
     shop_name = callback.data
-    await bot.send_message(chat_id=callback.from_user.id,
-                           text=f"{text.shop_1}{shop_name}{text.shop_2}")
     await state.update_data(shop=shop_name)
     if shop_name == "Leroy Merlin":
+        await bot.send_message(chat_id=callback.from_user.id,
+                           text=f"{text.shop_1}{shop_name}{text.shop_2}")
         await States.lm_art.set()
     elif shop_name == "OBI":
+        await bot.send_message(chat_id=callback.from_user.id,
+                           text=f"{text.shop_1}{shop_name}{text.shop_2}")
         await States.obi_art.set()
     elif shop_name == "Петрович":
+        await bot.send_message(chat_id=callback.from_user.id,
+                           text=f"{text.shop_1}{shop_name}{text.shop_2}")
         await States.petr_art.set()
     elif shop_name == "ВсеИнструменты":
+        await bot.send_message(chat_id=callback.from_user.id,
+                           text=f"{text.shop_1}{shop_name}{text.shop_2}")
         await States.vi_art.set()
+    else:
+        await bot.send_message(chat_id=callback.from_user.id,
+                               text="Выберите магазин:",
+                               reply_markup=kb.kb_shop_choosing())
+        await States.choose_shop.set()
 
 
 # dp.register_callback_query_handler(h_continue_choose_shop, state='continue_choose_shop')
@@ -54,8 +65,13 @@ async def h_continue_choose_shop(callback: CBQ):
                                text='Выберите магазин:',
                                reply_markup=kb.kb_shop_choosing())
         await States.choose_shop.set()
-    else:
+    elif answer == 'no':
         await States.cart_view.set()
         txt = await cart.def_cart_view(callback.from_user.id)
         await bot.send_message(callback.from_user.id, text=txt, reply_markup=kb.kb_cart())
         await States.cart_view_query.set()
+    else:
+        await bot.send_message(chat_id=callback.from_user.id,
+                               text="Выберите магазин:",
+                               reply_markup=kb.kb_shop_choosing())
+        await States.choose_shop.set()

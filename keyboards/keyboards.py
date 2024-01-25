@@ -55,7 +55,7 @@ def kb_cart() -> InlineKeyboardMarkup:
 def kb_not_add_in_bag() -> InlineKeyboardMarkup:
     kb = InlineKeyboardMarkup()
     cnt = InlineKeyboardButton(text="Изменить количество товара", callback_data="cnt")
-    other = InlineKeyboardButton(text="Не добавлять этот товар", callback_data="other")
+    other = InlineKeyboardButton(text="Не добавлять этот товар", callback_data="contin")
     kb.add(cnt)
     kb.add(other)
     return kb

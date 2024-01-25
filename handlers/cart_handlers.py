@@ -50,7 +50,11 @@ async def h_cart_view_query(callback: CBQ, state: FSMContext):
 async def h_change_cnt(msg: MSG, state: FSMContext):
     id_item = int(msg.text.strip())
     item = cart.item_info(msg.from_user.id, id_item)
-    print(item)
+    if item is None:
+        await msg.answer('Товар с этим ID отсутствует в корзине.')
+        txt = await cart.def_cart_view(msg.from_user.id)
+        await States.cart_view_query.set()
+        return await msg.answer(txt, reply_markup=kb.kb_cart())
     name = item[3]
     price = item[4]
     await state.update_data(id_item=id_item)
