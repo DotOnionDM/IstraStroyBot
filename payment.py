@@ -4,11 +4,10 @@ import config
 
 
 if __name__ == '__main__':
-    url = config.REAL_URL
-    sandbox = config.SANDBOX_URL
     payload = {}
     headers = {
-        'Authorization': f'Bearer {config.JWT_SANDBOX}'
+    'Authorization': f'Bearer {config.JWT_TOKEN}'
     }
-    response = requests.request("GET", sandbox, headers=headers, data=payload)
+    url = f"https://enter.tochka.com/uapi/sbp/v1.0/customer/{config.CUSTUMER_CODE}/{config.BANK_CODE}"
+    response = requests.request("GET", url, headers=headers, data=payload)
     print(response.text)
