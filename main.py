@@ -13,11 +13,11 @@ cart_handlers.register_handlers_cart(dp)
 
 
 if __name__ == "__main__":
-    payload = {}
+    '''payload = {}
     headers = {
         'Authorization': f'Bearer {config.JWT_TOKEN}'
     }
     url = f"https://enter.tochka.com/uapi/sbp/v1.0/customer/{config.CUSTUMER_CODE}/{config.BANK_CODE}"
     response = requests.request("GET", url, headers=headers, data=payload)
-    print(response.text)
+    print(response.text)'''
     executor.start_polling(dp, skip_updates=True)

@@ -37,8 +37,20 @@ async def h_cart_view_query(callback: CBQ, state: FSMContext):
                                text='Для подтверждения удаления корзины, напишите "Да".')
         await States.delete_all.set()
     elif data == "order":
+        txt = await cart.def_cart_view(callback.from_user.id)
+        cost = int(txt.split(" ")[-1])
+        qr_info = payment.create_payment(cost)
+        if qr_info[0] is None:
+            await bot.send_message(chat_id=callback.from_user.id,
+                               text='Проблема с банком, попробуйте чуть позже')
+            await bot.send_message(chat_id=callback.from_user.id,
+                               text='Выберите магазин:',
+                               reply_markup=kb.kb_shop_choosing())
+            await States.choose_shop.set()
+            return
         await bot.send_message(chat_id=callback.from_user.id,
-                               text='Сейчас отправим ссылку для оплаты.')
+                               text=f'Вот qr-код на оплату:\n {qr_info[1]}', 
+                               reply_markup=kb.kb_check_payment())
         await States.payment.set()
     else:
         await bot.send_message(chat_id=callback.from_user.id,
@@ -86,6 +98,7 @@ async def h_delete_all(msg: MSG):
     return await msg.answer(txt, reply_markup=kb.kb_cart())
 
 
-async def h_payment():
+async def h_payment(callback: CBQ, state: FSMContext):
     pass
+    
 

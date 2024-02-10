@@ -1,4 +1,4 @@
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, KeyboardButton
 from aiogram.dispatcher import FSMContext
 from states import States
 
@@ -66,4 +66,11 @@ def kb_item_was_in_cart() -> InlineKeyboardMarkup:
     cnt = InlineKeyboardButton(text="Изменить количество товара", callback_data="cnt")
     contin = InlineKeyboardButton(text="Продолжить выбор товаров", callback_data="contin")
     kb.add(cnt, contin)
+    return kb
+
+
+def kb_check_payment() -> ReplyKeyboardMarkup:
+    kb = ReplyKeyboardMarkup(resize_keyboard=True)
+    check = KeyboardButton(text="Проверить оплату", callback_data="check_payment")
+    kb.add(check)
     return kb
