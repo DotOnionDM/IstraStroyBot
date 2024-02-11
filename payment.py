@@ -12,7 +12,7 @@ def create_payment(amount: int) -> tuple:
         #url = f'https://enter.tochka.com/sandbox/v2/sbp/{config.API_VERSION}/qr-code/merchant/{config.MERCHANT_ID}/{config.ACCOUNT_ID}'
         payload = {
             "Data": {
-                "amount": amount,
+                "amount": amount * 100,
                 "currency": "RUB",
                 "paymentPurpose": "Оплата за услуги",
                 "qrcType": "02",
