@@ -1,9 +1,10 @@
+import sqlite3
 import requests
 import json
 import config
 
 
-def create_payment(amount):
+def create_payment(amount: int) -> tuple:
     code = 404
     i = 0
     while code != 200 and i < 20:
@@ -30,7 +31,7 @@ def create_payment(amount):
     return (info['Data']['qrcId'], info['Data']['payload'])
     
 
-def get_status(qr_id):
+def get_status(qr_id: str) -> str:
     code = 404
     i = 0
     while code != 200 and i < 20:
@@ -48,7 +49,37 @@ def get_status(qr_id):
     info = json.loads(response.text)
     return info['Data']['paymentList'][0]['status']
 
-    
+
+def add_qr(user_id: str, qr_id: str) -> None:
+    con = sqlite3.connect("data.db")
+    cur = con.cursor()
+    cur.execute(
+        f"CREATE TABLE IF NOT EXISTS payments (ID INTEGER PRIMARY KEY AUTOINCREMENT, qr_id TEXT, user_id TEXT)")
+    con.commit()
+    cur.execute(f"""
+        INSERT INTO payments (qr_id, user_id) VALUES ("{qr_id}", "{user_id}")""")
+    con.commit()
+    con.close()
+
+
+def get_qr(user_id: str) -> str:
+    con = sqlite3.connect("data.db")
+    cur = con.cursor()
+    res = cur.execute(f"""
+        SELECT qr_id FROM payments WHERE qr_id = "{user_id}" """).fetchone()
+    con.close()
+    print(res)
+    return res
+
+
+def remove_qr(user_id: str) -> None:
+    con = sqlite3.connect("data.db")
+    cur = con.cursor()
+    cur.execute(f"""
+        DELETE FROM payment WHERE user_id = "{user_id}" """)
+    con.commit()
+    con.close()
+ 
 
 if __name__ == '__main__':
     pass

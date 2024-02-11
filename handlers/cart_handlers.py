@@ -48,6 +48,7 @@ async def h_cart_view_query(callback: CBQ, state: FSMContext):
                                reply_markup=kb.kb_shop_choosing())
             await States.choose_shop.set()
             return
+        payment.add_qr(callback.from_user.id, qr_info[0])
         await bot.send_message(chat_id=callback.from_user.id,
                                text=f'Вот qr-код на оплату:\n {qr_info[1]}', 
                                reply_markup=kb.kb_check_payment())
@@ -99,6 +100,16 @@ async def h_delete_all(msg: MSG):
 
 
 async def h_payment(callback: CBQ, state: FSMContext):
-    pass
-    
+    if callback.data == "cancel":
+        payment.remove_qr(callback.from_user.id)
+        await States.choose_shop.set()
+    elif callback.data == "check_payment":
+        qr_id = payment.get_qr(callback.from_user.id)
+        status = payment.get_status(qr_id)
+        if status == "Accepted":
+            await bot.send_message(callback.from_user.id, "Платёж принят, с вами свяжется менеджер.")
+            await States.choose_shop.set()
+        else:
+            await bot.send_message(callback.from_user.id, "Платёж пока не принят, удостоверьтесь, что оплатили заказ. Если же заказ оплачен, то ожидайте.",
+                                   reply_markup=kb.kb_check_payment())
 
