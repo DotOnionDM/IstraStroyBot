@@ -69,9 +69,9 @@ def kb_item_was_in_cart() -> InlineKeyboardMarkup:
     return kb
 
 
-def kb_check_payment() -> ReplyKeyboardMarkup:
-    kb = ReplyKeyboardMarkup(resize_keyboard=True)
-    check = KeyboardButton(text="Проверить оплату", callback_data="check_payment")
-    cancel = KeyboardButton(text="Отменить", callback_data="cancel")
+def kb_check_payment() -> InlineKeyboardMarkup:
+    kb = InlineKeyboardMarkup()
+    check = InlineKeyboardButton(text="Проверить оплату", callback_data="check_payment")
+    cancel = InlineKeyboardButton(text="Отменить", callback_data="cancel")
     kb.add(check, cancel)
     return kb

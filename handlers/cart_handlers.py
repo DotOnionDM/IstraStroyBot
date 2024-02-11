@@ -14,7 +14,7 @@ def register_handlers_cart(dp: Dispatcher):
     dp.register_message_handler(h_change_cnt, state=States.change_cnt_id)
     dp.register_message_handler(h_delete_one, state=States.delete_one)
     dp.register_message_handler(h_delete_all, state=States.delete_all)
-    dp.register_message_handler(h_payment, state=States.payment)
+    dp.register_callback_query_handler(h_payment, state=States.payment)
 
 
 async def h_cart_view_query(callback: CBQ, state: FSMContext):
@@ -39,6 +39,14 @@ async def h_cart_view_query(callback: CBQ, state: FSMContext):
     elif data == "order":
         txt = await cart.def_cart_view(callback.from_user.id)
         cost = int(txt.split(" ")[-1])
+        if cost == 0:
+            await bot.send_message(chat_id=callback.from_user.id,
+                               text='Корзина пустая')
+            await bot.send_message(chat_id=callback.from_user.id,
+                               text='Выберите магазин:',
+                               reply_markup=kb.kb_shop_choosing())
+            await States.choose_shop.set()
+            return
         qr_info = payment.create_payment(cost)
         if qr_info[0] is None:
             await bot.send_message(chat_id=callback.from_user.id,
@@ -99,15 +107,23 @@ async def h_delete_all(msg: MSG):
     return await msg.answer(txt, reply_markup=kb.kb_cart())
 
 
-async def h_payment(callback: CBQ, state: FSMContext):
+async def h_payment(callback: CBQ):
     if callback.data == "cancel":
         payment.remove_qr(callback.from_user.id)
+        await bot.send_message(chat_id=callback.from_user.id,
+                               text='Выберите магазин:',
+                               reply_markup=kb.kb_shop_choosing())
         await States.choose_shop.set()
     elif callback.data == "check_payment":
         qr_id = payment.get_qr(callback.from_user.id)
         status = payment.get_status(qr_id)
         if status == "Accepted":
             await bot.send_message(callback.from_user.id, "Платёж принят, с вами свяжется менеджер.")
+            payment.remove_qr(callback.from_user.id)
+            cart.delete_all(callback.from_user.id)
+            await bot.send_message(chat_id=callback.from_user.id,
+                               text='Выберите магазин:',
+                               reply_markup=kb.kb_shop_choosing())
             await States.choose_shop.set()
         else:
             await bot.send_message(callback.from_user.id, "Платёж пока не принят, удостоверьтесь, что оплатили заказ. Если же заказ оплачен, то ожидайте.",

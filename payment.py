@@ -66,9 +66,8 @@ def get_qr(user_id: str) -> str:
     con = sqlite3.connect("data.db")
     cur = con.cursor()
     res = cur.execute(f"""
-        SELECT qr_id FROM payments WHERE qr_id = "{user_id}" """).fetchone()
+        SELECT qr_id FROM payments WHERE user_id = "{user_id}" """).fetchone()
     con.close()
-    print(res)
     return res
 
 
@@ -76,7 +75,7 @@ def remove_qr(user_id: str) -> None:
     con = sqlite3.connect("data.db")
     cur = con.cursor()
     cur.execute(f"""
-        DELETE FROM payment WHERE user_id = "{user_id}" """)
+        DELETE FROM payments WHERE user_id = "{user_id}" """)
     con.commit()
     con.close()
  
