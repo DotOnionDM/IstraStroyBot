@@ -8,11 +8,11 @@ def create_payment(amount: int) -> tuple:
     code = 404
     i = 0
     while code != 200 and i < 20:
-        #url = f"https://enter.tochka.com/uapi/sbp/{config.API_VERSION}/qr-code/merchant/{config.MERCHANT_ID}/{config.ACCOUNT_ID}"
-        url = f'https://enter.tochka.com/sandbox/v2/sbp/{config.API_VERSION}/qr-code/merchant/{config.MERCHANT_ID}/{config.ACCOUNT_ID}'
+        url = f"https://enter.tochka.com/uapi/sbp/{config.API_VERSION}/qr-code/merchant/{config.MERCHANT_ID}/{config.ACCOUNT_ID}"
+        #url = f'https://enter.tochka.com/sandbox/v2/sbp/{config.API_VERSION}/qr-code/merchant/{config.MERCHANT_ID}/{config.ACCOUNT_ID}'
         payload = {
             "Data": {
-                "amount": amount * 100,
+                "amount": amount,
                 "currency": "RUB",
                 "paymentPurpose": "Оплата за услуги",
                 "qrcType": "02",
@@ -20,7 +20,7 @@ def create_payment(amount: int) -> tuple:
             }
         }
         headers = {
-            'Authorization': f'Bearer {config.JWT_SANDBOX}'
+            'Authorization': f'Bearer {config.JWT_TOKEN}'
         }
         response = requests.request("POST", url, headers=headers, json=payload)
         code = response.status_code
@@ -35,11 +35,11 @@ def get_status(qr_id: str) -> str:
     code = 404
     i = 0
     while code != 200 and i < 20:
-        #url = f"https://enter.tochka.com/uapi/sbp/{config.API_VERSION}/qr-codes/{qr_id}/payment-status"
-        url = f'https://enter.tochka.com/sandbox/v2/sbp/{config.API_VERSION}/qr-codes/{qr_id}/payment-status'
+        url = f"https://enter.tochka.com/uapi/sbp/{config.API_VERSION}/qr-codes/{qr_id}/payment-status"
+        #url = f'https://enter.tochka.com/sandbox/v2/sbp/{config.API_VERSION}/qr-codes/{qr_id}/payment-status'
         payload = {}
         headers = {
-            'Authorization': f'Bearer {config.JWT_SANDBOX}'
+            'Authorization': f'Bearer {config.JWT_TOKEN}'
         }
         response = requests.request("GET", url, headers=headers, data=payload)
         code = response.status_code
@@ -68,7 +68,9 @@ def get_qr(user_id: str) -> str:
     res = cur.execute(f"""
         SELECT qr_id FROM payments WHERE user_id = "{user_id}" """).fetchone()
     con.close()
-    return res
+    if res is None:
+        return None
+    return res[0]
 
 
 def remove_qr(user_id: str) -> None:
