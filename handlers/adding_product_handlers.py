@@ -142,8 +142,7 @@ async def h_count_cbq(callback: CBQ, state: FSMContext):
                                    text='Этот товар уже есть в корзине.',
                                    reply_markup=kb.kb_item_was_in_cart())
             await States.item_was_in_cart.set()
-
-    else:
+    elif answer == 'no':
         await bot.send_message(chat_id=callback.from_user.id,
                                text="Выберите магазин:",
                                reply_markup=kb.kb_shop_choosing())
@@ -159,7 +158,7 @@ async def h_not_add_in_cart(callback: CBQ, state: FSMContext):
                                text='Количество товара изменено.',
                                reply_markup=kb.kb_continue_add())
         await States.continue_choose_shop.set()
-    else:
+    elif answer == 'contin':
         await bot.send_message(chat_id=callback.from_user.id,
                                text="Выберите магазин:",
                                reply_markup=kb.kb_shop_choosing())

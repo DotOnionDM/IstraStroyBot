@@ -7,6 +7,7 @@ from aiogram.types import Message as MSG
 from aiogram import Dispatcher
 from cart import cart
 import payment
+import text
 
 
 def register_handlers_cart(dp: Dispatcher):
@@ -41,24 +42,20 @@ async def h_cart_view_query(callback: CBQ, state: FSMContext):
         cost = int(txt.split(" ")[-1])
         if cost == 0:
             await bot.send_message(chat_id=callback.from_user.id,
-                               text='Корзина пустая')
-            await bot.send_message(chat_id=callback.from_user.id,
-                               text='Выберите магазин:',
+                               text='Корзина пустая. Добавьте товары для оформления заказа.',
                                reply_markup=kb.kb_shop_choosing())
             await States.choose_shop.set()
             return
         qr_info = payment.create_payment(cost)
         if qr_info[0] is None:
             await bot.send_message(chat_id=callback.from_user.id,
-                               text='Проблема с банком, попробуйте чуть позже')
-            await bot.send_message(chat_id=callback.from_user.id,
-                               text='Выберите магазин:',
+                               text='Проблема с банком, попробуйте чуть позже. Можете продолжить добавлять товары в корзину.',
                                reply_markup=kb.kb_shop_choosing())
             await States.choose_shop.set()
             return
         payment.add_qr(callback.from_user.id, qr_info[0])
         await bot.send_message(chat_id=callback.from_user.id,
-                               text=f'Вот qr-код на оплату:\n {qr_info[1]}', 
+                               text=f'{text.qr}\n {qr_info[1]}', 
                                reply_markup=kb.kb_check_payment())
         await States.payment.set()
     else:
