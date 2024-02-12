@@ -122,11 +122,6 @@ async def h_change_count_cbq(callback: CBQ, state: FSMContext):
         await States.continue_choose_shop.set()
     elif answer == 'no':
         await bot.send_message(chat_id=callback.from_user.id,
-                               text='Выберите следующее действие:',
-                               reply_markup=kb.kb_not_add_in_bag())
-        await States.not_add_in_cart.set()
-    else:
-        await bot.send_message(chat_id=callback.from_user.id,
                                text="Выберите магазин:",
                                reply_markup=kb.kb_shop_choosing())
         await States.choose_shop.set()
