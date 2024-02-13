@@ -18,4 +18,4 @@ def register_handlers_text_order(dp: Dispatcher):
 async def h_text_order(msg: MSG):
     cart.add_text_order(msg.from_user.id, msg.text)
     await States.choose_shop.set()
-    await msg.answer('ADDING TEXT ORDER', reply_markup=kb.kb_shop_choosing())
+    await msg.answer('Комментарий успешно добавлен.', reply_markup=kb.kb_shop_choosing())

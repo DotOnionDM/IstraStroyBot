@@ -31,7 +31,7 @@ async def h_cart_view_query(callback: CBQ, state: FSMContext):
         await States.change_cnt_id.set()
     elif data == "del_one":
         await bot.send_message(chat_id=callback.from_user.id,
-                               text='Введите ID товара, который хотите удалить из корзины.')
+                               text='Введите ID товара, который хотите удалить из корзины. Для удаления комментария введите 0.')
         await States.delete_one.set()
     elif data == "del_all":
         await bot.send_message(chat_id=callback.from_user.id,
@@ -87,13 +87,12 @@ async def h_change_cnt(msg: MSG, state: FSMContext):
 async def h_delete_one(msg: MSG):
     id_item = int(msg.text.strip())
     ret = cart.delete_one(msg.from_user.id, id_item)
-    if ret:
-        await msg.answer('Товар успешно удален из корзины.')
-    else:
-        await msg.answer('Товар с этим ID отсутствует в корзине.')
     txt = await cart.def_cart_view(msg.from_user.id)
     await States.cart_view_query.set()
-    return await msg.answer(txt, reply_markup=kb.kb_cart())
+    if ret:
+        return await msg.answer(txt, reply_markup=kb.kb_cart())
+    else:
+        return await msg.answer('Товар с этим ID отсутствует в корзине.', reply_markup=kb.kb_cart())
 
 
 async def h_delete_all(msg: MSG):

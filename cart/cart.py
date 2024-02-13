@@ -82,6 +82,18 @@ def change_cnt_by_art(user_id: str, user_data: dict) -> None:
 def delete_one(user_id: str, id_item: int) -> bool:
     con = sqlite3.connect("data.db")
     cur = con.cursor()
+    if id_item == 0:
+        table_name = 'text_orders'
+        was = cur.execute(f"SELECT * FROM 'text_orders' WHERE UserID = '{user_id}'").fetchone()
+        if was:
+            cur.execute(f"DELETE FROM 'text_orders' WHERE UserID = '{user_id}'")
+            con.commit()
+            con.close()
+            return True
+        else:
+            con.close()
+            return False
+
     was = cur.execute(f"SELECT * FROM '{user_id}' WHERE ID = {id_item}").fetchone()
     if was:
         cur.execute(f"DELETE FROM '{user_id}' WHERE ID = {id_item}")
