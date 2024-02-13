@@ -34,6 +34,10 @@ async def def_ask_count(art, name, price, id, state: FSMContext):
 
 
 async def h_lm_art(msg: MSG, state: FSMContext):
+    if (msg.text == '0'):
+        await msg.answer(text=text.choose_shop, reply_markup=kb.kb_shop_choosing())
+        return await States.choose_shop.set()
+
     await msg.answer(text.waiting_art)
     article = msg.text
     ret = lm_parser.requests_parser(article)
@@ -44,6 +48,10 @@ async def h_lm_art(msg: MSG, state: FSMContext):
 
 
 async def h_obi_art(msg: MSG, state: FSMContext):
+    if (msg.text == '0'):
+        await msg.answer(text=text.choose_shop, reply_markup=kb.kb_shop_choosing())
+        return await States.choose_shop.set()
+
     await msg.answer(text.waiting_art)
     article = msg.text
     ret = obi_parser.requests_parser(article)
@@ -55,6 +63,10 @@ async def h_obi_art(msg: MSG, state: FSMContext):
 
 
 async def h_petr_art(msg: MSG, state: FSMContext):
+    if (msg.text == '0'):
+        await msg.answer(text=text.choose_shop, reply_markup=kb.kb_shop_choosing())
+        return await States.choose_shop.set()
+
     await msg.answer(text.waiting_art)
     article = msg.text
     ret = petr_parser.requests_parser(article)
@@ -66,6 +78,10 @@ async def h_petr_art(msg: MSG, state: FSMContext):
 
 
 async def h_vi_art(msg: MSG, state: FSMContext):
+    if (msg.text == '0'):
+        await msg.answer(text=text.choose_shop, reply_markup=kb.kb_shop_choosing())
+        return await States.choose_shop.set()
+
     await msg.answer(text.waiting_art)
     article = msg.text
     ret = vi_parser.parser(article)
@@ -79,8 +95,12 @@ async def h_vi_art(msg: MSG, state: FSMContext):
 async def def_count_msg(t, user_data, chat_id):
     if t.isdigit() and int(t) > 0:
         cnt = int(t)
+    elif t == '0':
+        await bot.send_message(chat_id=chat_id, text=text.choose_shop, reply_markup=kb.kb_shop_choosing())
+        await States.choose_shop.set()
+        return None, None
     else:
-        await bot.send_message(chat_id=chat_id, text='Некорректный ввод.')
+        await bot.send_message(chat_id=chat_id, text=text.incorrect_number)
         return None, None
     money = int(user_data['price']) * cnt
     return cnt, money

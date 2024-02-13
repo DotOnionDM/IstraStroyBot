@@ -60,7 +60,6 @@ async def h_choose_shop(callback: CBQ, state: FSMContext):
                            text=f"{text.shop_1}{shop_name}{text.shop_2}")
         await States.vi_art.set()
 
-
 # dp.register_callback_query_handler(h_continue_choose_shop, state='continue_choose_shop')
 async def h_continue_choose_shop(callback: CBQ):
     answer = callback.data

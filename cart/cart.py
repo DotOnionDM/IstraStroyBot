@@ -127,7 +127,7 @@ def select_text_order(user_id) -> str:
 async def def_cart_view(user_id) -> str:
     user_cart = select_all(user_id)
 
-    txt = 'В вашей корзине:\n\n'
+    txt = 'В корзине:\n\n'
     final_sum = 0
 
     cnt = 0
