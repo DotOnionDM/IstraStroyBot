@@ -130,16 +130,21 @@ async def def_cart_view(user_id) -> str:
     txt = 'В вашей корзине:\n\n'
     final_sum = 0
 
+    cnt = 0
     for [id_item, shop, art, name, price, count, sm] in user_cart:
+        cnt += 1
         txt += f"ID: {id_item}\nМагазин: {shop}\nАртикул: {art}\nНазвание: {name}\nЦена: {price}\nКоличество: {count}\nСтоимость: {sm}\n\n"
         final_sum += int(sm)
 
     text_order = select_text_order(user_id)
     if (text_order):
+        cnt += 1
         txt += text_order + '\n\n'
+    else:
+        txt += 'Комментарий к заказу отсутствует\n\n'
 
     txt += f"Общая стоимость всех товаров: {final_sum}"
-    return txt
+    return (txt, cnt)
 
 def add_text_order(user_id, text_order) -> None:
     con = sqlite3.connect("data.db")

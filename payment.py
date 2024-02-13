@@ -47,7 +47,12 @@ def get_status(qr_id: str) -> str:
     if i >= 20:
         return None
     info = json.loads(response.text)
-    return info['Data']['paymentList'][0]['status']
+    print(info)
+    try:
+        ret = info['Data']['paymentList'][0]['status']
+    except KeyError as e:
+        ret = None
+    return ret
 
 
 def add_qr(user_id: str, qr_id: str) -> None:

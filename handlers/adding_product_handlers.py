@@ -38,7 +38,8 @@ async def h_lm_art(msg: MSG, state: FSMContext):
     article = msg.text
     ret = lm_parser.requests_parser(article)
     if len(ret) == len(text.item_not_find):
-        return await msg.answer(text=text.item_not_find)
+        await msg.answer(text=text.item_not_find, reply_markup=kb.kb_shop_choosing())
+        return await States.choose_shop.set()
     await def_ask_count(article, ret[0], ret[1], msg.from_user.id, state)
 
 
@@ -47,7 +48,8 @@ async def h_obi_art(msg: MSG, state: FSMContext):
     article = msg.text
     ret = obi_parser.requests_parser(article)
     if len(ret) == len(text.item_not_find):
-        return await msg.answer(text.item_not_find)
+        await msg.answer(text=text.item_not_find, reply_markup=kb.kb_shop_choosing())
+        return await States.choose_shop.set()
     price = int(ret[1].split('.')[0])
     await def_ask_count(article, ret[0], price, msg.from_user.id, state)
 
@@ -57,7 +59,8 @@ async def h_petr_art(msg: MSG, state: FSMContext):
     article = msg.text
     ret = petr_parser.requests_parser(article)
     if len(ret) == len(text.item_not_find):
-        return await msg.answer(text.item_not_find)
+        await msg.answer(text=text.item_not_find, reply_markup=kb.kb_shop_choosing())
+        return await States.choose_shop.set()
     price = int("".join(ret[1].split()[:-1]))
     await def_ask_count(article, ret[0], price, msg.from_user.id, state)
 
@@ -67,7 +70,8 @@ async def h_vi_art(msg: MSG, state: FSMContext):
     article = msg.text
     ret = vi_parser.parser(article)
     if ret is None:
-        return await msg.answer(text.item_not_find)
+        await msg.answer(text=text.item_not_find, reply_markup=kb.kb_shop_choosing())
+        return await States.choose_shop.set()
     price = int("".join(ret[1].split()[:-1]))
     await def_ask_count(article, ret[0], price, msg.from_user.id, state)
 
@@ -77,10 +81,6 @@ async def def_count_msg(t, user_data, chat_id):
         cnt = int(t)
     else:
         await bot.send_message(chat_id=chat_id, text='Некорректный ввод.')
-        await bot.send_message(chat_id=chat_id,
-                               text="Выберите магазин:",
-                               reply_markup=kb.kb_shop_choosing())
-        await States.choose_shop.set()
         return None, None
     money = int(user_data['price']) * cnt
     return cnt, money

@@ -28,3 +28,4 @@ class States(StatesGroup):
     delete_all = State()
 
     payment = State()
+    contact = State()

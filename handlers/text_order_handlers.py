@@ -1,13 +1,9 @@
 from aiogram.types import Message as MSG
 from aiogram.types import CallbackQuery as CBQ
 
-from parsing import lm_parser, obi_parser, petr_parser, vi_parser
-from aiogram.dispatcher import FSMContext
 from aiogram import Dispatcher
 from keyboards import keyboards as kb
-import text
 from states import States
-from app import bot
 from cart import cart
 
 
