@@ -71,7 +71,7 @@ async def h_continue_choose_shop(callback: CBQ):
     elif answer == 'no':
         await States.cart_view.set()
         txt = await cart.def_cart_view(callback.from_user.id)
-        await bot.send_message(callback.from_user.id, text=txt, reply_markup=kb.kb_cart())
+        await bot.send_message(callback.from_user.id, text=txt[0], reply_markup=kb.kb_cart())
         await States.cart_view_query.set()
     else:
         await bot.send_message(chat_id=callback.from_user.id,
