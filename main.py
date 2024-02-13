@@ -3,13 +3,14 @@ import config
 import requests
 from aiogram import executor
 from app import dp
-from handlers import choosing_shop_handlers, adding_product_handlers, cart_handlers
+from handlers import choosing_shop_handlers, adding_product_handlers, cart_handlers, text_order_handlers
 
 logging.basicConfig(level='INFO')
 
 choosing_shop_handlers.register_handlers_choosing_shop(dp)
 adding_product_handlers.register_handlers_add_product(dp)
 cart_handlers.register_handlers_cart(dp)
+text_order_handlers.register_handlers_text_order(dp)
 
 
 if __name__ == "__main__":

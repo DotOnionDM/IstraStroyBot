@@ -5,6 +5,8 @@ class States(StatesGroup):
     choose_shop = State()
     continue_choose_shop = State()
 
+    text_order = State()
+
     lm_art = State()
     obi_art = State()
     petr_art = State()

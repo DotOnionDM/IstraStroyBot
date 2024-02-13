@@ -9,9 +9,11 @@ def kb_shop_choosing() -> InlineKeyboardMarkup:
     petr = InlineKeyboardButton(text="Петрович", callback_data="Петрович")
     vi = InlineKeyboardButton(text="ВсеИнструменты", callback_data="ВсеИнструменты")
     cart = InlineKeyboardButton(text="Посмотреть корзину", callback_data="cart")
+    text_order = InlineKeyboardButton(text="Добавить комментарий", callback_data="text_order")
     kb.add(lm, obi)
     kb.add(petr, vi)
     kb.add(cart)
+    kb.add(text_order)
     return kb
 
 

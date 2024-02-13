@@ -7,6 +7,8 @@ def create_table(user_id: str) -> None:
     cur = con.cursor()
     cur.execute(
         f"CREATE TABLE IF NOT EXISTS '{user_id}' (ID INTEGER PRIMARY KEY AUTOINCREMENT, Shop TEXT, Article INTEGER, Name TEXT, Price INTEGER, Count INTEGER, Sum INTEGER)")
+    cur.execute(
+        f"CREATE TABLE IF NOT EXISTS 'text_orders' (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID TEXT, TextOrder TEXT)")
     con.commit()
     con.close()
 
@@ -95,8 +97,19 @@ def delete_all(user_id: str) -> None:
     con = sqlite3.connect("data.db")
     cur = con.cursor()
     cur.execute(f"DROP TABLE IF EXISTS '{user_id}'")
+    cur.execute(f"DELETE FROM 'text_orders' WHERE UserID = {user_id}")
     con.commit()
     con.close()
+
+def select_text_order(user_id) -> str:
+    con = sqlite3.connect("data.db")
+    cur = con.cursor()
+    create_table(user_id)
+    res = cur.execute(f"SELECT * FROM 'text_orders' WHERE UserID = '{user_id}'").fetchone()
+    con.close()
+    if res:
+        return res[2]
+    return res
 
 
 async def def_cart_view(user_id) -> str:
@@ -109,5 +122,24 @@ async def def_cart_view(user_id) -> str:
         txt += f"ID: {id_item}\nМагазин: {shop}\nАртикул: {art}\nНазвание: {name}\nЦена: {price}\nКоличество: {count}\nСтоимость: {sm}\n\n"
         final_sum += int(sm)
 
+    text_order = select_text_order(user_id)
+    if (text_order):
+        txt += text_order + '\n\n'
+
     txt += f"Общая стоимость всех товаров: {final_sum}"
     return txt
+
+def add_text_order(user_id, text_order) -> None:
+    con = sqlite3.connect("data.db")
+    cur = con.cursor()
+    create_table(user_id)
+    prev_text = cur.execute(f"SELECT * FROM 'text_orders' WHERE UserID = '{user_id}'").fetchone()
+    if prev_text:
+        cur.execute(f"DELETE FROM 'text_orders' WHERE UserID = {user_id}")
+        text_order = prev_text[2] + text_order + '\n'
+    else:
+        text_order = 'Комментарий к заказу:\n' + text_order
+    cur.execute(
+        f"INSERT INTO 'text_orders' (UserID, TextOrder) VALUES (?, ?)", [user_id, text_order])
+    con.commit()
+    con.close()

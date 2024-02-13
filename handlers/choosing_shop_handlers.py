@@ -31,6 +31,10 @@ async def h_choose_shop(callback: CBQ, state: FSMContext):
         txt = await cart.def_cart_view(callback.from_user.id)
         await States.cart_view_query.set()
         return await bot.send_message(callback.from_user.id, txt, reply_markup=kb.kb_cart())
+    elif callback.data == 'text_order':
+        txt = 'Добавьте комментарий к заказу.'
+        await States.text_order.set()
+        return await bot.send_message(callback.from_user.id, txt)
 
     shop_name = callback.data
     await state.update_data(shop=shop_name)
@@ -50,11 +54,6 @@ async def h_choose_shop(callback: CBQ, state: FSMContext):
         await bot.send_message(chat_id=callback.from_user.id,
                            text=f"{text.shop_1}{shop_name}{text.shop_2}")
         await States.vi_art.set()
-    else:
-        await bot.send_message(chat_id=callback.from_user.id,
-                               text="Выберите магазин:",
-                               reply_markup=kb.kb_shop_choosing())
-        await States.choose_shop.set()
 
 
 # dp.register_callback_query_handler(h_continue_choose_shop, state='continue_choose_shop')
