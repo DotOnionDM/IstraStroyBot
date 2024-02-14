@@ -138,7 +138,8 @@ async def h_payment(callback: CBQ, state: FSMContext):
 
 async def h_contact(msg: MSG, state: FSMContext):
     data = await state.get_data()
-    await admins.send_order(msg.from_user.id, msg.from_user.username, data['time_order'], data['time_payment'], data['sum'], msg.text)
+    await admins.send_order(msg.from_user.id, msg.from_user.username, data['time_order'],
+                            data['time_payment'], data['sum'], msg.text)
     await msg.answer('Ваш заказ передан менеджеру!', reply_markup=kb.kb_shop_choosing())
     cart.delete_all(msg.from_user.id)
     try:
