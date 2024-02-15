@@ -108,7 +108,10 @@ async def h_delete_one(msg: MSG):
 
 async def h_delete_all(msg: MSG):
     if msg.text.strip().lower() == 'да':
-        os.remove(f'cart/cart_{msg.from_user.username}.txt')
+        try:
+            os.remove(f'cart/cart_{msg.from_user.username}.txt')
+        except FileNotFoundError:
+            pass
         cart.delete_all(msg.from_user.id)
     txt = await cart.def_cart_view(msg.from_user.id)
     await States.cart_view_query.set()

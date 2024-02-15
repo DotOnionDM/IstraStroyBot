@@ -133,7 +133,7 @@ async def def_cart_view(user_id) -> str:
     cnt = 0
     for [id_item, shop, art, name, price, count, sm] in user_cart:
         cnt += 1
-        txt += f"ID: {id_item}\nМагазин: {shop}\nАртикул: {art}\nНазвание: {name}\nЦена: {price}\nКоличество: {count}\nСтоимость: {sm}\n\n"
+        txt += f"ID: {id_item}\nМагазин: {shop}\nАртикул: {art}\nНазвание: {name}\nЦена: {price}\nКоличество: {count}\nСтоимость: {sm} руб.\n\n"
         final_sum += int(sm)
 
     text_order = select_text_order(user_id)
@@ -143,7 +143,7 @@ async def def_cart_view(user_id) -> str:
     else:
         txt += 'Комментарий к заказу отсутствует\n\n'
 
-    txt += f"Общая стоимость всех товаров: {final_sum}"
+    txt += f"Общая стоимость всех товаров: {final_sum} руб."
     return (txt, cnt)
 
 def add_text_order(user_id, text_order) -> None:

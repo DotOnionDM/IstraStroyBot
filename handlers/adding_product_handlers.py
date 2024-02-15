@@ -114,7 +114,7 @@ async def h_count_msg(msg: MSG, state: FSMContext):
         return
     await state.update_data(count=cnt)
     await state.update_data(sum=money)
-    await msg.answer(text=f'Итоговая стоимость: {money}.\n\nДобавить в корзину?',
+    await msg.answer(text=f'Итоговая стоимость: {money} руб.\n\nДобавить в корзину?',
                      reply_markup=kb.kb_add_in_bag())
 
 
@@ -126,7 +126,7 @@ async def h_change_count_msg(msg: MSG, state: FSMContext):
         return
     await state.update_data(count=cnt)
     await state.update_data(sum=money)
-    await msg.answer(text=f'Итоговая стоимость: {money}.\n\nСохранить изменения?',
+    await msg.answer(text=f'Итоговая стоимость: {money} руб.\n\nСохранить изменения?',
                      reply_markup=kb.kb_add_in_bag())
     await States.change_cnt_cbq.set()
 
