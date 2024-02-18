@@ -12,6 +12,7 @@ import os
 from datetime import datetime
 import pytz
 from handlers import admins
+import json
 
 def register_handlers_cart(dp: Dispatcher):
     dp.register_callback_query_handler(h_cart_view_query, state=States.cart_view_query)
@@ -67,8 +68,11 @@ async def h_cart_view_query(callback: CBQ, state: FSMContext):
             await States.choose_shop.set()
             return
         payment.add_qr(callback.from_user.id, qr_info[0])
+        with open('admins.json', 'r') as file:
+            data = json.load(file)
+        prepayment = data['prepayment']
         await bot.send_message(chat_id=callback.from_user.id,
-                               text=f'{text.qr}\n {qr_info[1]}', 
+                               text=f'{text.qr}{prepayment}%\n\n{qr_info[1]}', 
                                reply_markup=kb.kb_check_payment())
         await States.payment.set()
     else:

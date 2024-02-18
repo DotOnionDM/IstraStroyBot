@@ -36,7 +36,6 @@ async def add_admins_chat(msg: MSG):
 
 async def send_order(user_id, username, time_order, time_payment, sum_order, contact):
     txt = await cart.def_cart_view(user_id)
-    print(txt)
     file = open(f"cart/cart_{username}.txt", "w+")
     file.write(txt[0])
     file.close()

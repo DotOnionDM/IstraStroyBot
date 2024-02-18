@@ -5,3 +5,4 @@ config.py
 venv
 *downloaded_files*
 .idea
+cart_*

@@ -50,7 +50,6 @@ def get_status(qr_id: str) -> str:
     if i >= 20:
         return None
     info = json.loads(response.text)
-    print(info)
     try:
         ret = info['Data']['paymentList'][0]['status']
     except KeyError as e:
