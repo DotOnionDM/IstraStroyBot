@@ -2,6 +2,8 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 
 
 class States(StatesGroup):
+    prepayment = State()
+
     choose_shop = State()
     continue_choose_shop = State()
 

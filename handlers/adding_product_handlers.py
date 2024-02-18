@@ -35,28 +35,28 @@ async def def_ask_count(art, name, price, id, state: FSMContext):
 
 async def h_lm_art(msg: MSG, state: FSMContext):
     if (msg.text == '0'):
-        await msg.answer(text=text.choose_shop, reply_markup=kb.kb_shop_choosing())
+        await msg.answer(text=text.choose_shop, reply_markup=kb.kb_shop_choosing(msg.from_user.id))
         return await States.choose_shop.set()
 
     await msg.answer(text.waiting_art)
     article = msg.text
     ret = lm_parser.requests_parser(article)
     if len(ret) == len(text.item_not_find):
-        await msg.answer(text=text.item_not_find, reply_markup=kb.kb_shop_choosing())
+        await msg.answer(text=text.item_not_find, reply_markup=kb.kb_shop_choosing(msg.from_user.id))
         return await States.choose_shop.set()
     await def_ask_count(article, ret[0], ret[1], msg.from_user.id, state)
 
 
 async def h_obi_art(msg: MSG, state: FSMContext):
     if (msg.text == '0'):
-        await msg.answer(text=text.choose_shop, reply_markup=kb.kb_shop_choosing())
+        await msg.answer(text=text.choose_shop, reply_markup=kb.kb_shop_choosing(msg.from_user.id))
         return await States.choose_shop.set()
 
     await msg.answer(text.waiting_art)
     article = msg.text
     ret = obi_parser.requests_parser(article)
     if len(ret) == len(text.item_not_find):
-        await msg.answer(text=text.item_not_find, reply_markup=kb.kb_shop_choosing())
+        await msg.answer(text=text.item_not_find, reply_markup=kb.kb_shop_choosing(msg.from_user.id))
         return await States.choose_shop.set()
     price = int(ret[1].split('.')[0])
     await def_ask_count(article, ret[0], price, msg.from_user.id, state)
@@ -64,14 +64,14 @@ async def h_obi_art(msg: MSG, state: FSMContext):
 
 async def h_petr_art(msg: MSG, state: FSMContext):
     if (msg.text == '0'):
-        await msg.answer(text=text.choose_shop, reply_markup=kb.kb_shop_choosing())
+        await msg.answer(text=text.choose_shop, reply_markup=kb.kb_shop_choosing(msg.from_user.id))
         return await States.choose_shop.set()
 
     await msg.answer(text.waiting_art)
     article = msg.text
     ret = petr_parser.requests_parser(article)
     if len(ret) == len(text.item_not_find):
-        await msg.answer(text=text.item_not_find, reply_markup=kb.kb_shop_choosing())
+        await msg.answer(text=text.item_not_find, reply_markup=kb.kb_shop_choosing(msg.from_user.id))
         return await States.choose_shop.set()
     price = int("".join(ret[1].split()[:-1]))
     await def_ask_count(article, ret[0], price, msg.from_user.id, state)
@@ -79,14 +79,14 @@ async def h_petr_art(msg: MSG, state: FSMContext):
 
 async def h_vi_art(msg: MSG, state: FSMContext):
     if (msg.text == '0'):
-        await msg.answer(text=text.choose_shop, reply_markup=kb.kb_shop_choosing())
+        await msg.answer(text=text.choose_shop, reply_markup=kb.kb_shop_choosing(msg.from_user.id))
         return await States.choose_shop.set()
 
     await msg.answer(text.waiting_art)
     article = msg.text
     ret = vi_parser.parser(article)
     if ret is None:
-        await msg.answer(text=text.item_not_find, reply_markup=kb.kb_shop_choosing())
+        await msg.answer(text=text.item_not_find, reply_markup=kb.kb_shop_choosing(msg.from_user.id))
         return await States.choose_shop.set()
     price = int("".join(ret[1].split()[:-1]))
     await def_ask_count(article, ret[0], price, msg.from_user.id, state)
@@ -96,7 +96,7 @@ async def def_count_msg(t, user_data, chat_id):
     if t.isdigit() and int(t) > 0:
         cnt = int(t)
     elif t == '0':
-        await bot.send_message(chat_id=chat_id, text=text.choose_shop, reply_markup=kb.kb_shop_choosing())
+        await bot.send_message(chat_id=chat_id, text=text.choose_shop, reply_markup=kb.kb_shop_choosing(chat_id))
         await States.choose_shop.set()
         return None, None
     else:
@@ -143,7 +143,7 @@ async def h_change_count_cbq(callback: CBQ, state: FSMContext):
     elif answer == 'no':
         await bot.send_message(chat_id=callback.from_user.id,
                                text="Выберите магазин:",
-                               reply_markup=kb.kb_shop_choosing())
+                               reply_markup=kb.kb_shop_choosing(callback.from_user.id))
         await States.choose_shop.set()
 
 
@@ -165,7 +165,7 @@ async def h_count_cbq(callback: CBQ, state: FSMContext):
     elif answer == 'no':
         await bot.send_message(chat_id=callback.from_user.id,
                                text="Выберите магазин:",
-                               reply_markup=kb.kb_shop_choosing())
+                               reply_markup=kb.kb_shop_choosing(callback.from_user.id))
         await States.choose_shop.set()
 
 
@@ -181,5 +181,5 @@ async def h_not_add_in_cart(callback: CBQ, state: FSMContext):
     elif answer == 'contin':
         await bot.send_message(chat_id=callback.from_user.id,
                                text="Выберите магазин:",
-                               reply_markup=kb.kb_shop_choosing())
+                               reply_markup=kb.kb_shop_choosing(callback.from_user.id))
         await States.choose_shop.set()

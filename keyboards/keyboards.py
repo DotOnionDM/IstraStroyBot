@@ -1,8 +1,16 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, KeyboardButton
 from aiogram.dispatcher import FSMContext
 from states import States
+import json
 
-def kb_shop_choosing() -> InlineKeyboardMarkup:
+def check_admin(user_id):
+    with open('admins.json', 'r') as file:
+        data = json.load(file)
+    if (str(user_id) == data['admin']):
+        return True
+    return False
+
+def kb_shop_choosing(user_id) -> InlineKeyboardMarkup:
     kb = InlineKeyboardMarkup()
     lm = InlineKeyboardButton(text="Leroy Merlin", callback_data="Leroy Merlin")
     obi = InlineKeyboardButton(text="OBI", callback_data="OBI")
@@ -14,6 +22,9 @@ def kb_shop_choosing() -> InlineKeyboardMarkup:
     kb.add(petr, vi)
     kb.add(cart)
     kb.add(text_order)
+    if (check_admin(user_id)):
+        prepayment = InlineKeyboardButton(text='Изменить размер предоплаты', callback_data='prepayment')
+        kb.add(prepayment)
     return kb
 
 
@@ -43,7 +54,7 @@ def kb_continue_add() -> InlineKeyboardMarkup:
     return kb
 
 
-def kb_cart() -> InlineKeyboardMarkup:
+def kb_cart(user_id) -> InlineKeyboardMarkup:
     kb = InlineKeyboardMarkup()
     continue_btn = InlineKeyboardButton(text="Продолжить добавление товаров", callback_data="continue")
     change_btn = InlineKeyboardButton(text="Изменить количество товара", callback_data="change")
@@ -55,6 +66,9 @@ def kb_cart() -> InlineKeyboardMarkup:
     kb.add(del_one_btn)
     kb.add(del_all_btn)
     kb.add(order_btn)
+    if (check_admin(user_id)):
+        prepayment = InlineKeyboardButton(text='Изменить размер предоплаты', callback_data='prepayment')
+        kb.add(prepayment)
     return kb
 
 

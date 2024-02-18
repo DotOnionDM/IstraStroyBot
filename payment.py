@@ -7,12 +7,15 @@ import config
 def create_payment(amount: int) -> tuple:
     code = 404
     i = 0
+    with open('admins.json', 'r') as file:
+        data = json.load(file)
+    prepayment = data['prepayment']
     while code != 200 and i < 20:
         url = f"https://enter.tochka.com/uapi/sbp/{config.API_VERSION}/qr-code/merchant/{config.MERCHANT_ID}/{config.ACCOUNT_ID}"
         #url = f'https://enter.tochka.com/sandbox/v2/sbp/{config.API_VERSION}/qr-code/merchant/{config.MERCHANT_ID}/{config.ACCOUNT_ID}'
         payload = {
             "Data": {
-                "amount": amount * 100,
+                "amount": amount * prepayment,
                 "currency": "RUB",
                 "paymentPurpose": "Оплата за услуги",
                 "qrcType": "02",

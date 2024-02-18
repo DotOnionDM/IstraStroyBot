@@ -9,7 +9,9 @@ from app import bot
 from cart import cart
 from keyboards import keyboards as kb
 from states import States
+from handlers import admins
 
+import json
 
 def register_handlers_choosing_shop(dp: Dispatcher):
     dp.register_message_handler(h_start, commands=['start'], state='*')
@@ -21,7 +23,7 @@ def register_handlers_choosing_shop(dp: Dispatcher):
 async def h_start(msg: MSG):
     await bot.send_message(chat_id=msg.from_id,
                            text=text.start,
-                           reply_markup=kb.kb_shop_choosing())
+                           reply_markup=kb.kb_shop_choosing(msg.from_user.id))
     await States.choose_shop.set()
 
 
@@ -34,12 +36,15 @@ async def h_choose_shop(callback: CBQ, state: FSMContext):
             file = open(f"cart/cart_{callback.from_user.username}.txt", "w+")
             file.write(txt[0])
             file.close()
-            return await bot.send_document(callback.from_user.id, open(f"cart/cart_{callback.from_user.username}.txt", "rb"), caption='В вашей корзине много товаров, поэтому отправляем файлом', reply_markup=kb.kb_cart())
-        return await bot.send_message(callback.from_user.id, txt[0], reply_markup=kb.kb_cart())
+            return await bot.send_document(callback.from_user.id, open(f"cart/cart_{callback.from_user.username}.txt", "rb"),
+                                           caption='В вашей корзине много товаров, поэтому отправляем файлом', reply_markup=kb.kb_cart(callback.from_user.id))
+        return await bot.send_message(callback.from_user.id, txt[0], reply_markup=kb.kb_cart(callback.from_user.id))
     elif callback.data == 'text_order':
         txt = 'Добавьте комментарий к заказу. Он может содержать только текст.'
         await States.text_order.set()
         return await bot.send_message(callback.from_user.id, txt)
+    elif callback.data == 'prepayment':
+        return await admins.ask_prepayment(callback.from_user.id)
 
     shop_name = callback.data
     await state.update_data(shop=shop_name)
@@ -66,15 +71,15 @@ async def h_continue_choose_shop(callback: CBQ):
     if answer == 'yes':
         await bot.send_message(chat_id=callback.from_user.id,
                                text='Выберите магазин:',
-                               reply_markup=kb.kb_shop_choosing())
+                               reply_markup=kb.kb_shop_choosing(callback.from_user.id))
         await States.choose_shop.set()
     elif answer == 'no':
         await States.cart_view.set()
         txt = await cart.def_cart_view(callback.from_user.id)
-        await bot.send_message(callback.from_user.id, text=txt[0], reply_markup=kb.kb_cart())
+        await bot.send_message(callback.from_user.id, text=txt[0], reply_markup=kb.kb_cart(callback.from_user.id))
         await States.cart_view_query.set()
     else:
         await bot.send_message(chat_id=callback.from_user.id,
                                text="Выберите магазин:",
-                               reply_markup=kb.kb_shop_choosing())
+                               reply_markup=kb.kb_shop_choosing(callback.from_user.id))
         await States.choose_shop.set()

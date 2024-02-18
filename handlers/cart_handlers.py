@@ -27,8 +27,10 @@ async def h_cart_view_query(callback: CBQ, state: FSMContext):
     if data == "continue":
         await bot.send_message(chat_id=callback.from_user.id,
                                text='Выберите магазин:',
-                               reply_markup=kb.kb_shop_choosing())
+                               reply_markup=kb.kb_shop_choosing(callback.from_user.id))
         await States.choose_shop.set()
+    elif data == 'prepayment':
+        return await admins.ask_prepayment(callback.from_user.id)
     elif data == "change":
         await bot.send_message(chat_id=callback.from_user.id,
                                text='Введите ID товара, количество которого вы хотите изменить.')
@@ -43,12 +45,12 @@ async def h_cart_view_query(callback: CBQ, state: FSMContext):
         await States.delete_all.set()
     elif data == "order":
         txt = await cart.def_cart_view(callback.from_user.id)
-        cost = int(txt[0].split(" ")[-1])
+        cost = int(txt[0].split(" ")[-2])
         if cost == 0:
             '''
             await bot.send_message(chat_id=callback.from_user.id,
                                text='Корзина пустая. Добавьте товары для оформления заказа.',
-                               reply_markup=kb.kb_shop_choosing())
+                               reply_markup=kb.kb_shop_choosing(callback.from_user.id))
             await States.choose_shop.set()
             return
             '''
@@ -61,7 +63,7 @@ async def h_cart_view_query(callback: CBQ, state: FSMContext):
         if qr_info[0] is None:
             await bot.send_message(chat_id=callback.from_user.id,
                                text='Проблема с банком, попробуйте чуть позже. Можете продолжить добавлять товары в корзину.',
-                               reply_markup=kb.kb_shop_choosing())
+                               reply_markup=kb.kb_shop_choosing(callback.from_user.id))
             await States.choose_shop.set()
             return
         payment.add_qr(callback.from_user.id, qr_info[0])
@@ -72,7 +74,7 @@ async def h_cart_view_query(callback: CBQ, state: FSMContext):
     else:
         await bot.send_message(chat_id=callback.from_user.id,
                                text='Выберите магазин:',
-                               reply_markup=kb.kb_shop_choosing())
+                               reply_markup=kb.kb_shop_choosing(callback.from_user.id))
         await States.choose_shop.set()
 
 
@@ -83,7 +85,7 @@ async def h_change_cnt(msg: MSG, state: FSMContext):
         await msg.answer('Товар с этим ID отсутствует в корзине.')
         txt = await cart.def_cart_view(msg.from_user.id)
         await States.cart_view_query.set()
-        return await msg.answer(txt[0], reply_markup=kb.kb_cart())
+        return await msg.answer(txt[0], reply_markup=kb.kb_cart(msg.from_user.id))
     name = item[3]
     price = item[4]
     await state.update_data(id_item=id_item)
@@ -101,9 +103,9 @@ async def h_delete_one(msg: MSG):
     txt = await cart.def_cart_view(msg.from_user.id)
     await States.cart_view_query.set()
     if ret:
-        return await msg.answer(txt[0], reply_markup=kb.kb_cart())
+        return await msg.answer(txt[0], reply_markup=kb.kb_cart(msg.from_user.id))
     else:
-        return await msg.answer('Товар с этим ID отсутствует в корзине.', reply_markup=kb.kb_cart())
+        return await msg.answer('Товар с этим ID отсутствует в корзине.', reply_markup=kb.kb_cart(msg.from_user.id))
 
 
 async def h_delete_all(msg: MSG):
@@ -115,7 +117,7 @@ async def h_delete_all(msg: MSG):
         cart.delete_all(msg.from_user.id)
     txt = await cart.def_cart_view(msg.from_user.id)
     await States.cart_view_query.set()
-    return await msg.answer(txt[0], reply_markup=kb.kb_cart())
+    return await msg.answer(txt[0], reply_markup=kb.kb_cart(msg.from_user.id))
 
 
 async def h_payment(callback: CBQ, state: FSMContext):
@@ -123,7 +125,7 @@ async def h_payment(callback: CBQ, state: FSMContext):
         payment.remove_qr(callback.from_user.id)
         await bot.send_message(chat_id=callback.from_user.id,
                                text='Выберите магазин:',
-                               reply_markup=kb.kb_shop_choosing())
+                               reply_markup=kb.kb_shop_choosing(callback.from_user.id))
         await States.choose_shop.set()
     elif callback.data == "check_payment":
         qr_id = payment.get_qr(callback.from_user.id)
@@ -143,7 +145,7 @@ async def h_contact(msg: MSG, state: FSMContext):
     data = await state.get_data()
     await admins.send_order(msg.from_user.id, msg.from_user.username, data['time_order'],
                             data['time_payment'], data['sum'], msg.text)
-    await msg.answer('Ваш заказ передан менеджеру!', reply_markup=kb.kb_shop_choosing())
+    await msg.answer('Ваш заказ передан менеджеру!', reply_markup=kb.kb_shop_choosing(msg.from_user.id))
     cart.delete_all(msg.from_user.id)
     try:
         os.remove('cart/cart_{callback.from_user.username}.txt')
