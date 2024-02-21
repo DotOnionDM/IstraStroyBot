@@ -13,6 +13,7 @@ adding_product_handlers.register_handlers_add_product(dp)
 cart_handlers.register_handlers_cart(dp)
 text_order_handlers.register_handlers_text_order(dp)
 
+import test
 
 if __name__ == "__main__":
     '''payload = {}

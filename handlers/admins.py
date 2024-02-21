@@ -10,6 +10,7 @@ from cart import cart
 from keyboards import keyboards as kb
 from states import States
 import json
+import io
 
 
 def register_admins(dp: Dispatcher):
@@ -36,9 +37,8 @@ async def add_admins_chat(msg: MSG):
 
 async def send_order(user_id, username, time_order, time_payment, sum_order, contact):
     txt = await cart.def_cart_view(user_id)
-    file = open(f"cart/cart_{username}.txt", "w+")
-    file.write(txt[0])
-    file.close()
+    with open(f"cart/cart_{username}.txt", "w+", encoding="utf-8") as file:
+        file.write(txt[0])
     order_text = f'Время заявки: {time_order}\n\nВремя оплаты: {time_payment}\n\nСумма: {sum_order}\n\nИмя и телефон:\n{contact}'
     with open('admins.json', 'r') as file:
         data = json.load(file)

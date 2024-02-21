@@ -33,9 +33,8 @@ async def h_choose_shop(callback: CBQ, state: FSMContext):
         txt = await cart.def_cart_view(callback.from_user.id)
         await States.cart_view_query.set()
         if txt[1] >= 10:
-            file = open(f"cart/cart_{callback.from_user.username}.txt", "w+")
-            file.write(txt[0])
-            file.close()
+            with open(f"cart/cart_{callback.from_user.username}.txt", "w+", encoding="utf-8") as file:
+                file.write(txt[0])
             return await bot.send_document(callback.from_user.id, open(f"cart/cart_{callback.from_user.username}.txt", "rb"),
                                            caption='В вашей корзине много товаров, поэтому отправляем файлом', reply_markup=kb.kb_cart(callback.from_user.id))
         return await bot.send_message(callback.from_user.id, txt[0], reply_markup=kb.kb_cart(callback.from_user.id))
