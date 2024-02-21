@@ -66,9 +66,9 @@ async def change_prepayment(msg: MSG):
         data["prepayment"] = cnt
         with open('admins.json', 'w') as file:
             json.dump(data, file)
-        await msg.answer('Размер предоплаты изменен. Выберете магазин:', reply_markup=kb.kb_shop_choosing(msg.from_user.id))
+        await msg.answer(f'Размер предоплаты изменен.\n\n{text.choose_shop}', reply_markup=kb.kb_shop_choosing(msg.from_user.id))
         return await States.choose_shop.set()
-    await msg.answer('Вы не администратор бота. Выберете магазин:', reply_markup=kb.kb_shop_choosing(msg.from_user.id))
+    await msg.answer(f'Вы не администратор бота.\n\n{text.choose_shop}', reply_markup=kb.kb_shop_choosing(msg.from_user.id))
     return await States.choose_shop.set()
 
 async def ask_sale(user_id):
@@ -90,7 +90,7 @@ async def change_sale(msg: MSG):
         data["sale"] = cnt
         with open('admins.json', 'w') as file:
             json.dump(data, file)
-        await msg.answer('Размер скидки изменен. Выберете магазин:', reply_markup=kb.kb_shop_choosing(msg.from_user.id))
+        await msg.answer(f'Размер скидки изменен.\n\n{text.choose_shop}', reply_markup=kb.kb_shop_choosing(msg.from_user.id))
         return await States.choose_shop.set()
-    await msg.answer('Вы не администратор бота. Выберете магазин:', reply_markup=kb.kb_shop_choosing(msg.from_user.id))
+    await msg.answer(f'Вы не администратор бота.\n\n{text.choose_shop}', reply_markup=kb.kb_shop_choosing(msg.from_user.id))
     return await States.choose_shop.set()

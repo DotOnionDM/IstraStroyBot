@@ -116,6 +116,7 @@ def delete_all(user_id: str) -> None:
     cur = con.cursor()
     cur.execute(f"DROP TABLE IF EXISTS '{user_id}'")
     cur.execute(f"DELETE FROM 'text_orders' WHERE UserID = {user_id}")
+    cur.execute(f"DELETE FROM 'other_orders' WHERE UserID = {user_id}")
     con.commit()
     con.close()
 
@@ -180,7 +181,7 @@ def add_text_order(user_id, text_order) -> None:
         cur.execute(f"DELETE FROM 'text_orders' WHERE UserID = {user_id}")
         text_order = prev_text[2] + text_order + '\n'
     else:
-        text_order = 'Комментарий к заказу:\n' + text_order
+        text_order = 'Комментарий к заказу:\n' + text_order + '\n'
     cur.execute(
         f"INSERT INTO 'text_orders' (UserID, TextOrder) VALUES (?, ?)", [user_id, text_order])
     con.commit()
@@ -195,7 +196,7 @@ def add_other_order(user_id, text_order) -> None:
         cur.execute(f"DELETE FROM 'other_orders' WHERE UserID = {user_id}")
         text_order = prev_text[2] + text_order + '\n'
     else:
-        text_order = 'Индивидуальный заказ:\n' + text_order
+        text_order = 'Индивидуальный заказ:\n' + text_order + '\n'
     cur.execute(
         f"INSERT INTO 'other_orders' (UserID, TextOrder) VALUES (?, ?)", [user_id, text_order])
     con.commit()

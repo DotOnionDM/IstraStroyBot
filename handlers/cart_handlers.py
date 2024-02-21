@@ -28,9 +28,12 @@ async def h_cart_view_query(callback: CBQ, state: FSMContext):
     data = callback.data
     if data == "continue":
         await bot.send_message(chat_id=callback.from_user.id,
-                               text='Выберите магазин:',
+                               text=text.choose_shop,
                                reply_markup=kb.kb_shop_choosing(callback.from_user.id))
         await States.choose_shop.set()
+    elif data == 'text_order':
+        await States.text_order.set()
+        return await bot.send_message(callback.from_user.id, text.text_order)
     elif data == 'prepayment':
         States.prepayment.set()
         return await admins.ask_prepayment(callback.from_user.id)
@@ -79,7 +82,7 @@ async def h_cart_view_query(callback: CBQ, state: FSMContext):
         await States.payment.set()
     else:
         await bot.send_message(chat_id=callback.from_user.id,
-                               text='Выберите магазин:',
+                               text=text.choose_shop,
                                reply_markup=kb.kb_shop_choosing(callback.from_user.id))
         await States.choose_shop.set()
 
@@ -132,7 +135,7 @@ async def h_payment(callback: CBQ, state: FSMContext):
     if callback.data == "cancel":
         payment.remove_qr(callback.from_user.id)
         await bot.send_message(chat_id=callback.from_user.id,
-                               text='Выберите магазин:',
+                               text=text.choose_shop,
                                reply_markup=kb.kb_shop_choosing(callback.from_user.id))
         await States.choose_shop.set()
     elif callback.data == "check_payment":

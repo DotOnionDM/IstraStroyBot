@@ -38,12 +38,8 @@ async def h_choose_shop(callback: CBQ, state: FSMContext):
             return await bot.send_document(callback.from_user.id, open(f"cart/cart_{callback.from_user.username}.txt", "rb"),
                                            caption='В вашей корзине много товаров, поэтому отправляем файлом', reply_markup=kb.kb_cart(callback.from_user.id))
         return await bot.send_message(callback.from_user.id, txt[0], reply_markup=kb.kb_cart(callback.from_user.id))
-    elif callback.data == 'text_order':
-        txt = 'Добавьте комментарий к заказу. Он может содержать только текст.'
-        await States.text_order.set()
-        return await bot.send_message(callback.from_user.id, txt)
     elif callback.data == 'other_order':
-        txt = 'Вы можете добавить индивидуальный заказ. Например: "ПРИМЕР".'
+        txt = text.other_order
         await States.other_order.set()
         return await bot.send_message(callback.from_user.id, txt)
     elif callback.data == 'prepayment':
@@ -77,7 +73,7 @@ async def h_continue_choose_shop(callback: CBQ):
     answer = callback.data
     if answer == 'yes':
         await bot.send_message(chat_id=callback.from_user.id,
-                               text='Выберите магазин:',
+                               text=text.choose_shop,
                                reply_markup=kb.kb_shop_choosing(callback.from_user.id))
         await States.choose_shop.set()
     elif answer == 'no':
@@ -87,6 +83,6 @@ async def h_continue_choose_shop(callback: CBQ):
         await States.cart_view_query.set()
     else:
         await bot.send_message(chat_id=callback.from_user.id,
-                               text="Выберите магазин:",
+                               text=text.choose_shop,
                                reply_markup=kb.kb_shop_choosing(callback.from_user.id))
         await States.choose_shop.set()

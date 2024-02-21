@@ -151,7 +151,7 @@ async def h_change_count_cbq(callback: CBQ, state: FSMContext):
         await States.continue_choose_shop.set()
     elif answer == 'no':
         await bot.send_message(chat_id=callback.from_user.id,
-                               text="Выберите магазин:",
+                               text=text.choose_shop,
                                reply_markup=kb.kb_shop_choosing(callback.from_user.id))
         await States.choose_shop.set()
 
@@ -173,7 +173,7 @@ async def h_count_cbq(callback: CBQ, state: FSMContext):
             await States.item_was_in_cart.set()
     elif answer == 'no':
         await bot.send_message(chat_id=callback.from_user.id,
-                               text="Выберите магазин:",
+                               text=text.choose_shop,
                                reply_markup=kb.kb_shop_choosing(callback.from_user.id))
         await States.choose_shop.set()
 
@@ -189,6 +189,6 @@ async def h_not_add_in_cart(callback: CBQ, state: FSMContext):
         await States.continue_choose_shop.set()
     elif answer == 'contin':
         await bot.send_message(chat_id=callback.from_user.id,
-                               text="Выберите магазин:",
+                               text=text.choose_shop,
                                reply_markup=kb.kb_shop_choosing(callback.from_user.id))
         await States.choose_shop.set()
