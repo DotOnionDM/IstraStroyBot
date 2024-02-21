@@ -28,7 +28,12 @@ class States(StatesGroup):
     change_cnt_id = State()
     change_cnt_cnt = State()
     change_cnt_cbq = State()
+
     delete_one = State()
+    delete_one_item = State()
+    delete_one_text = State()
+    delete_one_other = State()
+
     delete_all = State()
 
     payment = State()

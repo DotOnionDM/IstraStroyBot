@@ -63,7 +63,7 @@ def kb_cart(user_id) -> InlineKeyboardMarkup:
     continue_btn = InlineKeyboardButton(text="Продолжить добавление товаров", callback_data="continue")
     text_order = InlineKeyboardButton(text="Добавить комментарий", callback_data="text_order")
     change_btn = InlineKeyboardButton(text="Изменить количество товара", callback_data="change")
-    del_one_btn = InlineKeyboardButton(text="Удалить товар или комментарий", callback_data="del_one")
+    del_one_btn = InlineKeyboardButton(text="Удалить элемент из корзины", callback_data="del_one")
     del_all_btn = InlineKeyboardButton(text="Очистить корзину", callback_data="del_all")
     order_btn = InlineKeyboardButton(text="Оформить заказ", callback_data="order")
     kb.add(continue_btn)
@@ -79,6 +79,17 @@ def kb_cart(user_id) -> InlineKeyboardMarkup:
         kb.add(sale)
     return kb
 
+def kb_del_one() -> InlineKeyboardMarkup:
+    kb = InlineKeyboardMarkup()
+    item = InlineKeyboardButton(text='Удалить товар', callback_data='item')
+    text = InlineKeyboardButton(text='Удалить комментарий', callback_data='text')
+    other = InlineKeyboardButton(text='Удалить индивидуальный заказ', callback_data='other')
+    back = InlineKeyboardButton(text='Вернуться к выбору магазина', callback_data='back')
+    kb.add(item)
+    kb.add(text)
+    kb.add(other)
+    kb.add(back)
+    return kb
 
 def kb_not_add_in_bag() -> InlineKeyboardMarkup:
     kb = InlineKeyboardMarkup()

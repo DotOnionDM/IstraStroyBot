@@ -17,7 +17,10 @@ import json
 def register_handlers_cart(dp: Dispatcher):
     dp.register_callback_query_handler(h_cart_view_query, state=States.cart_view_query)
     dp.register_message_handler(h_change_cnt, state=States.change_cnt_id)
-    dp.register_message_handler(h_delete_one, state=States.delete_one)
+    dp.register_callback_query_handler(h_del_one, state=States.delete_one)
+    dp.register_message_handler(h_delete_one_item, state=States.delete_one_item)
+    dp.register_message_handler(h_delete_one_text, state=States.delete_one_text)
+    dp.register_message_handler(h_delete_one_other, state=States.delete_one_other)
     dp.register_message_handler(h_delete_all, state=States.delete_all)
     dp.register_callback_query_handler(h_payment, state=States.payment)
     dp.register_message_handler(h_contact_name, state=States.contact_name)
@@ -42,15 +45,16 @@ async def h_cart_view_query(callback: CBQ, state: FSMContext):
         return await admins.ask_sale(callback.from_user.id)
     elif data == "change":
         await bot.send_message(chat_id=callback.from_user.id,
-                               text='Введите ID товара, количество которого вы хотите изменить.')
+                               text='Введите ID товара, количество которого вы хотите изменить.\n\nЧтобы вернуться к выбору магазина, введите 0.')
         await States.change_cnt_id.set()
     elif data == "del_one":
         await bot.send_message(chat_id=callback.from_user.id,
-                               text='Введите ID товара, который хотите удалить из корзины. Для удаления комментария введите 0.')
+                               text='Выберите, что хотите удалить:',
+                               reply_markup=kb.kb_del_one())
         await States.delete_one.set()
     elif data == "del_all":
         await bot.send_message(chat_id=callback.from_user.id,
-                               text='Для подтверждения удаления корзины, напишите "Да".')
+                               text='Для подтверждения удаления корзины, напишите "Да".\n\nЧтобы вернуться к выбору магазина, введите 0.')
         await States.delete_all.set()
     elif data == "order":
         txt = await cart.def_cart_view(callback.from_user.id)
@@ -89,6 +93,10 @@ async def h_cart_view_query(callback: CBQ, state: FSMContext):
 
 async def h_change_cnt(msg: MSG, state: FSMContext):
     id_item = int(msg.text.strip())
+    if (id_item == 0):
+        await States.cart_view_query.set()
+        txt = await cart.def_cart_view(msg.from_user.id)
+        return await msg.answer(txt[0], reply_markup=kb.kb_cart(msg.from_user.id))
     item = cart.item_info(msg.from_user.id, id_item)
     if item is None:
         await msg.answer('Товар с этим ID отсутствует в корзине.')
@@ -104,19 +112,55 @@ async def h_change_cnt(msg: MSG, state: FSMContext):
     await state.update_data(name=name)
     await state.update_data(price=price)
     await state.update_data(saleprice=saleprice)
-    await msg.answer(f"{name}\n\nЦена в магазине: {price} руб.\nЦена со скидкой: {saleprice}\n\nВведите новое количество для этого товара.")
+    await msg.answer(f"{name}\n\nЦена в магазине: {price/100} руб.\nЦена со скидкой: {saleprice/100} руб.\n\nВведите новое количество для этого товара.")
     await States.change_cnt_cnt.set()
 
 
-async def h_delete_one(msg: MSG):
+async def h_del_one(cbq: CBQ):
+    data = cbq.data
+    if data == 'item':
+        await States.delete_one_item.set()
+        return await bot.send_message(cbq.from_user.id, text='Введите ID товара, который хотите удалить.\n\nЧтобы вернуться к выбору магазина, введите 0.')
+    elif data == 'text':
+        await States.delete_one_text.set()
+        return await bot.send_message(cbq.from_user.id, text='Для подтверждения удаления комментария, напишите "Да".\n\nЧтобы вернуться к выбору магазина, введите 0.')
+    elif data == 'other':
+        await States.delete_one_other.set()
+        return await bot.send_message(cbq.from_user.id, text='Для подтверждения удаления индивидуального заказа, напишите "Да".\n\nЧтобы вернуться к выбору магазина, введите 0.')
+    elif data == 'back':
+        await States.choose_shop.set()
+        return await bot.send_message(cbq.from_user.id, text=text.choose_shop, reply_markup=kb.kb_shop_choosing(cbq.from_user.id))
+
+async def h_delete_one_item(msg: MSG):
     id_item = int(msg.text.strip())
-    ret = cart.delete_one(msg.from_user.id, id_item)
+    if (id_item == 0):
+        return await msg.answer(text.choose_shop, reply_markup=kb.kb_shop_choosing(msg.from_user.id))
+    ret = cart.delete_one_item(msg.from_user.id, id_item)
     txt = await cart.def_cart_view(msg.from_user.id)
     await States.cart_view_query.set()
     if ret:
         return await msg.answer(txt[0], reply_markup=kb.kb_cart(msg.from_user.id))
     else:
         return await msg.answer('Товар с этим ID отсутствует в корзине.', reply_markup=kb.kb_cart(msg.from_user.id))
+    
+async def h_delete_one_text(msg: MSG):
+    if (msg.text.strip() == '0'):
+        return await msg.answer(text.choose_shop, reply_markup=kb.kb_shop_choosing(msg.from_user.id))
+    if msg.text.strip().lower() == 'да':
+        cart.delete_one_text(msg.from_user.id)
+    txt = await cart.def_cart_view(msg.from_user.id)
+    await States.cart_view_query.set()
+    return await msg.answer(txt[0], reply_markup=kb.kb_cart(msg.from_user.id))
+
+
+async def h_delete_one_other(msg: MSG):
+    if (msg.text.strip() == '0'):
+        return await msg.answer(text.choose_shop, reply_markup=kb.kb_shop_choosing(msg.from_user.id))
+    if msg.text.strip().lower() == 'да':
+        cart.delete_one_other(msg.from_user.id)
+    txt = await cart.def_cart_view(msg.from_user.id)
+    await States.cart_view_query.set()
+    return await msg.answer(txt[0], reply_markup=kb.kb_cart(msg.from_user.id))
 
 
 async def h_delete_all(msg: MSG):
