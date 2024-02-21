@@ -37,11 +37,11 @@ async def add_admins_chat(msg: MSG):
         return await msg.answer('Этот чат назначен чатом менеджеров. Сюда будет приходить информация об оплаченных заказах')
     return await msg.answer('Вы не администратор бота')
 
-async def send_order(user_id, username, time_order, time_payment, sum_order, contact):
+async def send_order(user_id, username, time_order, time_payment, sum_order, name, phone):
     txt = await cart.def_cart_view(user_id)
     with open(f"cart/cart_{username}.txt", "w+", encoding="utf-8") as file:
         file.write(txt[0])
-    order_text = f'Время заявки: {time_order}\n\nВремя оплаты: {time_payment}\n\nСумма: {sum_order}\n\nИмя и телефон:\n{contact}'
+    order_text = f'Время заявки: {time_order}\n\nВремя оплаты: {time_payment}\n\nСумма: {sum_order}\n\nИмя: {name}\n\nТелефон: {phone}'
     with open('admins.json', 'r') as file:
         data = json.load(file)
     await bot.send_document(data['chat'], open(f"cart/cart_{username}.txt", "rb"),

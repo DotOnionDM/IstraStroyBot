@@ -9,6 +9,7 @@ class States(StatesGroup):
     continue_choose_shop = State()
 
     text_order = State()
+    other_order = State()
 
     lm_art = State()
     obi_art = State()

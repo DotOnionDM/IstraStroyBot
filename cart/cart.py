@@ -9,6 +9,8 @@ def create_table(user_id: str) -> None:
         f"CREATE TABLE IF NOT EXISTS '{user_id}' (ID INTEGER PRIMARY KEY AUTOINCREMENT, Shop TEXT, Article INTEGER, Name TEXT, Price INTEGER, PriceSale INTEGER, Count INTEGER, Sum INTEGER, SumSale INTEGER)")
     cur.execute(
         f"CREATE TABLE IF NOT EXISTS 'text_orders' (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID TEXT, TextOrder TEXT)")
+    cur.execute(
+        f"CREATE TABLE IF NOT EXISTS 'other_orders' (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID TEXT, TextOrder TEXT)")
     con.commit()
     con.close()
 
@@ -127,6 +129,16 @@ def select_text_order(user_id) -> str:
         return res[2]
     return res
 
+def select_other_order(user_id) -> str:
+    con = sqlite3.connect("data.db")
+    cur = con.cursor()
+    create_table(user_id)
+    res = cur.execute(f"SELECT * FROM 'other_orders' WHERE UserID = '{user_id}'").fetchone()
+    con.close()
+    if res:
+        return res[2]
+    return res
+
 
 async def def_cart_view(user_id) -> str:
     user_cart = select_all(user_id)
@@ -142,12 +154,19 @@ async def def_cart_view(user_id) -> str:
         final_sum += int(sm) / 100
         final_sale_sum += int(salesm) / 100
 
+    other_order = select_other_order(user_id)
+    if (other_order):
+        cnt += 1
+        txt += other_order + '\n\n'
+    else:
+        txt += 'Индивидуальный заказ отсутствует.\n\n'
+
     text_order = select_text_order(user_id)
     if (text_order):
         cnt += 1
         txt += text_order + '\n\n'
     else:
-        txt += 'Комментарий к заказу отсутствует\n\n'
+        txt += 'Комментарий к заказу отсутствует.\n\n'
 
     txt += f"Общая стоимость всех товаров:\nв магазине: {final_sum} руб.\nсо скидкой: {final_sale_sum} руб."
     return (txt, cnt)
@@ -164,5 +183,20 @@ def add_text_order(user_id, text_order) -> None:
         text_order = 'Комментарий к заказу:\n' + text_order
     cur.execute(
         f"INSERT INTO 'text_orders' (UserID, TextOrder) VALUES (?, ?)", [user_id, text_order])
+    con.commit()
+    con.close()
+
+def add_other_order(user_id, text_order) -> None:
+    con = sqlite3.connect("data.db")
+    cur = con.cursor()
+    create_table(user_id)
+    prev_text = cur.execute(f"SELECT * FROM 'other_orders' WHERE UserID = '{user_id}'").fetchone()
+    if prev_text:
+        cur.execute(f"DELETE FROM 'other_orders' WHERE UserID = {user_id}")
+        text_order = prev_text[2] + text_order + '\n'
+    else:
+        text_order = 'Индивидуальный заказ:\n' + text_order
+    cur.execute(
+        f"INSERT INTO 'other_orders' (UserID, TextOrder) VALUES (?, ?)", [user_id, text_order])
     con.commit()
     con.close()

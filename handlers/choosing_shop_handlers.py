@@ -32,7 +32,7 @@ async def h_choose_shop(callback: CBQ, state: FSMContext):
     if callback.data == "cart":
         txt = await cart.def_cart_view(callback.from_user.id)
         await States.cart_view_query.set()
-        if txt[1] >= 10:
+        if txt[1] >= 8:
             with open(f"cart/cart_{callback.from_user.username}.txt", "w+", encoding="utf-8") as file:
                 file.write(txt[0])
             return await bot.send_document(callback.from_user.id, open(f"cart/cart_{callback.from_user.username}.txt", "rb"),
@@ -41,6 +41,10 @@ async def h_choose_shop(callback: CBQ, state: FSMContext):
     elif callback.data == 'text_order':
         txt = 'Добавьте комментарий к заказу. Он может содержать только текст.'
         await States.text_order.set()
+        return await bot.send_message(callback.from_user.id, txt)
+    elif callback.data == 'other_order':
+        txt = 'Вы можете добавить индивидуальный заказ. Например: "ПРИМЕР".'
+        await States.other_order.set()
         return await bot.send_message(callback.from_user.id, txt)
     elif callback.data == 'prepayment':
         await States.prepayment.set()

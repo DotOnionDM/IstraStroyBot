@@ -18,10 +18,12 @@ def kb_shop_choosing(user_id) -> InlineKeyboardMarkup:
     vi = InlineKeyboardButton(text="ВсеИнструменты", callback_data="ВсеИнструменты")
     cart = InlineKeyboardButton(text="Посмотреть корзину", callback_data="cart")
     text_order = InlineKeyboardButton(text="Добавить комментарий", callback_data="text_order")
+    other_order = InlineKeyboardButton(text='Заказать иные стройматериалы', callback_data='other_order')
     kb.add(lm, obi)
     kb.add(petr, vi)
     kb.add(cart)
     kb.add(text_order)
+    kb.add(other_order)
     if (check_admin(user_id)):
         prepayment = InlineKeyboardButton(text='Изменить размер предоплаты', callback_data='prepayment')
         sale = InlineKeyboardButton(text='Изменить размер скидки', callback_data='sale')

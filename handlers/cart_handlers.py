@@ -53,18 +53,15 @@ async def h_cart_view_query(callback: CBQ, state: FSMContext):
         txt = await cart.def_cart_view(callback.from_user.id)
         cost = int(txt[0].split(" ")[-2])
         if cost == 0:
-            '''
-            await bot.send_message(chat_id=callback.from_user.id,
-                               text='Корзина пустая. Добавьте товары для оформления заказа.',
-                               reply_markup=kb.kb_shop_choosing(callback.from_user.id))
-            await States.choose_shop.set()
-            return
-            '''
-            cost = 1
             await state.update_data(sum=0)
+            await state.update_data(salesm=0)
         time_zone = pytz.timezone('Europe/Moscow')
         time_order = datetime.now(time_zone).strftime("%d.%m.%Y %H:%M:%S")
         await state.update_data(time_order=time_order)
+        if cost == 0:
+            await state.update_data(time_payment=time_order)
+            await States.contact_name.set()
+            return await bot.send_message(callback.from_user.id, "Введите ваше имя:")
         qr_info = payment.create_payment(cost)
         if qr_info[0] is None:
             await bot.send_message(chat_id=callback.from_user.id,
