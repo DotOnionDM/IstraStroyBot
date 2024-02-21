@@ -20,7 +20,8 @@ def register_handlers_cart(dp: Dispatcher):
     dp.register_message_handler(h_delete_one, state=States.delete_one)
     dp.register_message_handler(h_delete_all, state=States.delete_all)
     dp.register_callback_query_handler(h_payment, state=States.payment)
-    dp.register_message_handler(h_contact, state=States.contact)
+    dp.register_message_handler(h_contact_name, state=States.contact_name)
+    dp.register_message_handler(h_contact_number, state=States.contact_number)
 
 
 async def h_cart_view_query(callback: CBQ, state: FSMContext):
@@ -31,7 +32,11 @@ async def h_cart_view_query(callback: CBQ, state: FSMContext):
                                reply_markup=kb.kb_shop_choosing(callback.from_user.id))
         await States.choose_shop.set()
     elif data == 'prepayment':
+        States.prepayment.set()
         return await admins.ask_prepayment(callback.from_user.id)
+    elif data == 'sale':
+        States.sale.set()
+        return await admins.ask_sale(callback.from_user.id)
     elif data == "change":
         await bot.send_message(chat_id=callback.from_user.id,
                                text='Введите ID товара, количество которого вы хотите изменить.')
@@ -75,9 +80,6 @@ async def h_cart_view_query(callback: CBQ, state: FSMContext):
                                text=f'{text.qr}{prepayment}%\n\n{qr_info[1]}', 
                                reply_markup=kb.kb_check_payment())
         await States.payment.set()
-    elif callback.data == 'sale':
-        return await admins.ask_sale(callback.from_user.id)
-        await States.sale.set()
     else:
         await bot.send_message(chat_id=callback.from_user.id,
                                text='Выберите магазин:',
@@ -95,12 +97,14 @@ async def h_change_cnt(msg: MSG, state: FSMContext):
         return await msg.answer(txt[0], reply_markup=kb.kb_cart(msg.from_user.id))
     name = item[3]
     price = item[4]
+    saleprice = item[5]
     await state.update_data(id_item=id_item)
     await state.update_data(shop=item[1])
     await state.update_data(article=item[2])
     await state.update_data(name=name)
     await state.update_data(price=price)
-    await msg.answer(f"{name}\n\n{price} ₽\n\nВведите новое количество для этого товара.")
+    await state.update_data(saleprice=saleprice)
+    await msg.answer(f"{name}\n\nЦена в магазине: {price} руб.\nЦена со скидкой: {saleprice}\n\nВведите новое количество для этого товара.")
     await States.change_cnt_cnt.set()
 
 
@@ -141,17 +145,22 @@ async def h_payment(callback: CBQ, state: FSMContext):
             time_zone = pytz.timezone('Europe/Moscow')
             time_payment = datetime.now(time_zone).strftime("%d.%m.%Y %H:%M:%S")
             await state.update_data(time_payment=time_payment)
-            await bot.send_message(callback.from_user.id, "Платёж принят, для связи введите имя и номер телефона")
-            await States.contact.set()
+            await bot.send_message(callback.from_user.id, "Платёж принят. Введите ваше имя:")
+            await States.contact_name.set()
             payment.remove_qr(callback.from_user.id)
         else:
             await bot.send_message(callback.from_user.id, "Платёж пока не принят. Проверьте, оплачен ли заказ, и повторите попытку.",
                                    reply_markup=kb.kb_check_payment())
 
-async def h_contact(msg: MSG, state: FSMContext):
+async def h_contact_name(msg: MSG, state: FSMContext):
+    await state.update_data(name=msg.text)
+    await msg.answer("Введите номер телефона, начиная с +7:")
+    await States.contact_number.set()
+
+async def h_contact_number(msg: MSG, state: FSMContext):
     data = await state.get_data()
     await admins.send_order(msg.from_user.id, msg.from_user.username, data['time_order'],
-                            data['time_payment'], data['sum'], msg.text)
+                            data['time_payment'], data['sum'], data['name'], msg.text)
     await msg.answer('Ваш заказ передан менеджеру!', reply_markup=kb.kb_shop_choosing(msg.from_user.id))
     cart.delete_all(msg.from_user.id)
     try:

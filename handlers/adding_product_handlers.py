@@ -9,6 +9,7 @@ import text
 from states import States
 from app import bot
 from cart import cart
+import json
 
 
 def register_handlers_add_product(dp: Dispatcher):
@@ -24,11 +25,16 @@ def register_handlers_add_product(dp: Dispatcher):
 
 
 async def def_ask_count(art, name, price, id, state: FSMContext):
-    txt = f"{name}\n\n{price} ₽"
+    with open('admins.json', 'r') as file:
+        data = json.load(file)
+    sale = data['sale']
+    saleprice = price * (100 - sale) / 100
+    txt = f"{name}\n\nЦена в магазине: {price} руб.\nЦена со скидкой: {saleprice} руб."
     await bot.send_message(chat_id=id, text=txt)
     await state.update_data(article=art)
     await state.update_data(name=name)
     await state.update_data(price=price)
+    await state.update_data(saleprice=saleprice)
     await bot.send_message(chat_id=id, text=text.ask_cnt)
     await States.count.set()
 
@@ -102,31 +108,34 @@ async def def_count_msg(t, user_data, chat_id):
     else:
         await bot.send_message(chat_id=chat_id, text=text.incorrect_number)
         return None, None
-    money = int(user_data['price']) * cnt
-    return cnt, money
+    sm = int(user_data['price']) * cnt
+    salesm = int(user_data['saleprice'] * 100) / 100 * cnt
+    return cnt, sm, salesm
 
 
 async def h_count_msg(msg: MSG, state: FSMContext):
     t = msg.text
     user_data = await state.get_data()
-    [cnt, money] = await def_count_msg(t, user_data, msg.from_user.id)
+    [cnt, sm, salesm] = await def_count_msg(t, user_data, msg.from_user.id)
     if cnt is None:
         return
     await state.update_data(count=cnt)
-    await state.update_data(sum=money)
-    await msg.answer(text=f'Итоговая стоимость: {money} руб.\n\nДобавить в корзину?',
+    await state.update_data(sum=sm)
+    await state.update_data(sumsale=salesm)
+    await msg.answer(text=f'Итоговая стоимость в магазине: {sm} руб.\nИтоговая стоимость со скидкой: {salesm} руб.\n\nДобавить в корзину?',
                      reply_markup=kb.kb_add_in_bag())
 
 
 async def h_change_count_msg(msg: MSG, state: FSMContext):
     t = msg.text
     user_data = await state.get_data()
-    [cnt, money] = await def_count_msg(t, user_data, msg.from_user.id)
+    [cnt, sm, salesm] = await def_count_msg(t, user_data, msg.from_user.id)
     if cnt is None:
         return
     await state.update_data(count=cnt)
-    await state.update_data(sum=money)
-    await msg.answer(text=f'Итоговая стоимость: {money} руб.\n\nСохранить изменения?',
+    await state.update_data(sum=sm)
+    await state.update_data(sumsale=salesm)
+    await msg.answer(text=f'Итоговая стоимостьв магазине: {sm} руб.\n\nИтоговая стоимость со скидкой: {salesm} руб.\nСохранить изменения?',
                      reply_markup=kb.kb_add_in_bag())
     await States.change_cnt_cbq.set()
 

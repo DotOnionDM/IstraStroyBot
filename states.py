@@ -31,4 +31,5 @@ class States(StatesGroup):
     delete_all = State()
 
     payment = State()
-    contact = State()
+    contact_name = State()
+    contact_number = State()
