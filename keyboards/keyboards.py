@@ -24,7 +24,9 @@ def kb_shop_choosing(user_id) -> InlineKeyboardMarkup:
     kb.add(text_order)
     if (check_admin(user_id)):
         prepayment = InlineKeyboardButton(text='Изменить размер предоплаты', callback_data='prepayment')
+        sale = InlineKeyboardButton(text='Изменить размер скидки', callback_data='sale')
         kb.add(prepayment)
+        kb.add(sale)
     return kb
 
 
@@ -68,7 +70,9 @@ def kb_cart(user_id) -> InlineKeyboardMarkup:
     kb.add(order_btn)
     if (check_admin(user_id)):
         prepayment = InlineKeyboardButton(text='Изменить размер предоплаты', callback_data='prepayment')
+        sale = InlineKeyboardButton(text='Изменить размер скидки', callback_data='sale')
         kb.add(prepayment)
+        kb.add(sale)
     return kb
 
 

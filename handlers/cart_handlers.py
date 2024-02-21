@@ -75,6 +75,9 @@ async def h_cart_view_query(callback: CBQ, state: FSMContext):
                                text=f'{text.qr}{prepayment}%\n\n{qr_info[1]}', 
                                reply_markup=kb.kb_check_payment())
         await States.payment.set()
+    elif callback.data == 'sale':
+        return await admins.ask_sale(callback.from_user.id)
+        await States.sale.set()
     else:
         await bot.send_message(chat_id=callback.from_user.id,
                                text='Выберите магазин:',

@@ -43,7 +43,11 @@ async def h_choose_shop(callback: CBQ, state: FSMContext):
         await States.text_order.set()
         return await bot.send_message(callback.from_user.id, txt)
     elif callback.data == 'prepayment':
+        await States.prepayment.set()
         return await admins.ask_prepayment(callback.from_user.id)
+    elif callback.data == 'sale':
+        await States.sale.set()
+        return await admins.ask_sale(callback.from_user.id)
 
     shop_name = callback.data
     await state.update_data(shop=shop_name)
