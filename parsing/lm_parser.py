@@ -63,8 +63,12 @@ def requests_parser(article):
         return text.item_not_find
     if price is None:
         return name.text, 'Цена не найдена. Передайте артикул данного товара менеджеру для улучшения работы бота!'
+    
+    art = soup.find("span", attrs={"data-qa": "product-article"})
+    if (art.text.split()[-1] != article):
+        return text.item_not_find
 
-    return name.text, price.text.replace("\xa0", "")
+    return name.text, int(price.text.replace("\xa0", ""))
 
 
 if __name__ == "__main__":

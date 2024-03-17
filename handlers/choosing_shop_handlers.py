@@ -53,19 +53,19 @@ async def h_choose_shop(callback: CBQ, state: FSMContext):
     await state.update_data(shop=shop_name)
     if shop_name == "Leroy Merlin":
         await bot.send_message(chat_id=callback.from_user.id,
-                           text=f"{text.shop_1}{shop_name}{text.shop_2}")
+                           text=f"{text.shop_1}{shop_name}{text.shop_2}артикул{text.shop_3}")
         await States.lm_art.set()
     elif shop_name == "OBI":
         await bot.send_message(chat_id=callback.from_user.id,
-                           text=f"{text.shop_1}{shop_name}{text.shop_2}")
+                           text=f"{text.shop_1}{shop_name}{text.shop_2}артикул{text.shop_3}")
         await States.obi_art.set()
     elif shop_name == "Петрович":
         await bot.send_message(chat_id=callback.from_user.id,
-                           text=f"{text.shop_1}{shop_name}{text.shop_2}")
+                           text=f"{text.shop_1}{shop_name}{text.shop_2}код{text.shop_3}")
         await States.petr_art.set()
     elif shop_name == "ВсеИнструменты":
         await bot.send_message(chat_id=callback.from_user.id,
-                           text=f"{text.shop_1}{shop_name}{text.shop_2}")
+                           text=f"{text.shop_1}{shop_name}{text.shop_2}код{text.shop_3}")
         await States.vi_art.set()
 
 # dp.register_callback_query_handler(h_continue_choose_shop, state='continue_choose_shop')

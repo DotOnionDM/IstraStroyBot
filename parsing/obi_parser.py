@@ -9,6 +9,9 @@ def requests_parser(article):
                             headers=headers)
     response_text = json.loads(response.text)
     try:
+        art = response_text['products'][0]['id']
+        if (art != article):
+            return text.item_not_find
         name = response_text['products'][0]['name']
         price = response_text['products'][0]['price']
         return name, price

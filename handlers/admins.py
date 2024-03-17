@@ -22,7 +22,9 @@ def register_admins(dp: Dispatcher):
     dp.register_message_handler(change_sale, state=[States.sale])
 
 async def add_admin(msg: MSG):
-    data = {"admin": f"{msg.from_user.id}"}
+    with open('admins.json', 'r') as file:
+        data = json.load(file)
+    data["admin"] = f"{msg.from_user.id}"
     with open('admins.json', 'w') as file:
         json.dump(data, file)
     await msg.answer('Вы назначены администратором бота.\n\nДля работы с ботом, добавьте его в чат с менеджерами и напишите команду /add_admins_chat.\n\nЭта команда реагирует только на вызов с аккаунта администратора.')

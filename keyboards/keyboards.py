@@ -16,7 +16,7 @@ def kb_shop_choosing(user_id) -> InlineKeyboardMarkup:
     obi = InlineKeyboardButton(text="OBI", callback_data="OBI")
     petr = InlineKeyboardButton(text="Петрович", callback_data="Петрович")
     vi = InlineKeyboardButton(text="ВсеИнструменты", callback_data="ВсеИнструменты")
-    cart = InlineKeyboardButton(text="Посмотреть корзину", callback_data="cart")
+    cart = InlineKeyboardButton(text="В корзину", callback_data="cart")
     # text_order = InlineKeyboardButton(text="Добавить комментарий", callback_data="text_order")
     other_order = InlineKeyboardButton(text='Заказать иные стройматериалы', callback_data='other_order')
     kb.add(lm, obi)
@@ -52,7 +52,7 @@ async def kb_change_cnt(state: FSMContext) -> InlineKeyboardMarkup:
 def kb_continue_add() -> InlineKeyboardMarkup:
     kb = InlineKeyboardMarkup()
     yes = InlineKeyboardButton(text="Продолжить добавление товаров", callback_data="yes")
-    no = InlineKeyboardButton(text="Посмотреть корзину", callback_data="no")
+    no = InlineKeyboardButton(text="В корзину", callback_data="no")
     kb.add(yes)
     kb.add(no)
     return kb
@@ -67,9 +67,9 @@ def kb_cart(user_id) -> InlineKeyboardMarkup:
     del_all_btn = InlineKeyboardButton(text="Очистить корзину", callback_data="del_all")
     order_btn = InlineKeyboardButton(text="Оформить заказ", callback_data="order")
     kb.add(continue_btn)
-    kb.add(text_order)
     kb.add(change_btn)
     kb.add(del_one_btn)
+    kb.add(text_order)
     kb.add(del_all_btn)
     kb.add(order_btn)
     if (check_admin(user_id)):
@@ -111,7 +111,7 @@ def kb_item_was_in_cart() -> InlineKeyboardMarkup:
 
 def kb_check_payment() -> InlineKeyboardMarkup:
     kb = InlineKeyboardMarkup()
-    check = InlineKeyboardButton(text="Проверить оплату", callback_data="check_payment")
+    check = InlineKeyboardButton(text="Подтвердить оплату", callback_data="check_payment")
     cancel = InlineKeyboardButton(text="Отменить", callback_data="cancel")
     kb.add(check)
     kb.add(cancel)

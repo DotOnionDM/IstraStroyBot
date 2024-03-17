@@ -45,7 +45,7 @@ async def h_cart_view_query(callback: CBQ, state: FSMContext):
         return await admins.ask_sale(callback.from_user.id)
     elif data == "change":
         await bot.send_message(chat_id=callback.from_user.id,
-                               text='Введите ID товара, количество которого вы хотите изменить.\n\nЧтобы вернуться к выбору магазина, введите 0.')
+                               text='Укажите номер очередности (ID) товара, количество которого хотите изменить.\n\nЧтобы вернуться к выбору магазина, введите 0.')
         await States.change_cnt_id.set()
     elif data == "del_one":
         await bot.send_message(chat_id=callback.from_user.id,
@@ -58,7 +58,7 @@ async def h_cart_view_query(callback: CBQ, state: FSMContext):
         await States.delete_all.set()
     elif data == "order":
         txt = await cart.def_cart_view(callback.from_user.id)
-        cost = int(txt[0].split(" ")[-2])
+        cost = int(txt[2])
         if cost == 0:
             await state.update_data(sum=0)
             await state.update_data(salesm=0)
@@ -69,7 +69,7 @@ async def h_cart_view_query(callback: CBQ, state: FSMContext):
             await state.update_data(time_payment=time_order)
             await States.contact_name.set()
             return await bot.send_message(callback.from_user.id, "Введите ваше имя:")
-        qr_info = payment.create_payment(cost)
+        qr_info = payment.create_payment(cost/100)
         if qr_info[0] is None:
             await bot.send_message(chat_id=callback.from_user.id,
                                text='Проблема с банком, попробуйте чуть позже. Можете продолжить добавлять товары в корзину.',
@@ -81,7 +81,7 @@ async def h_cart_view_query(callback: CBQ, state: FSMContext):
             data = json.load(file)
         prepayment = data['prepayment']
         await bot.send_message(chat_id=callback.from_user.id,
-                               text=f'{text.qr}{prepayment}%\n\n{qr_info[1]}', 
+                               text=f'{text.qr}{prepayment}%{text.qr2}\n\n{qr_info[1]}', 
                                reply_markup=kb.kb_check_payment())
         await States.payment.set()
     else:
@@ -189,7 +189,7 @@ async def h_payment(callback: CBQ, state: FSMContext):
             time_zone = pytz.timezone('Europe/Moscow')
             time_payment = datetime.now(time_zone).strftime("%d.%m.%Y %H:%M:%S")
             await state.update_data(time_payment=time_payment)
-            await bot.send_message(callback.from_user.id, "Платёж принят. Введите ваше имя:")
+            await bot.send_message(callback.from_user.id, "Предоплата поступила. Введите Ваше имя:")
             await States.contact_name.set()
             payment.remove_qr(callback.from_user.id)
         else:
@@ -198,14 +198,14 @@ async def h_payment(callback: CBQ, state: FSMContext):
 
 async def h_contact_name(msg: MSG, state: FSMContext):
     await state.update_data(name=msg.text)
-    await msg.answer("Введите номер телефона, начиная с +7:")
+    await msg.answer("Введите Ваш контактный номер телефона без +7:")
     await States.contact_number.set()
 
 async def h_contact_number(msg: MSG, state: FSMContext):
     data = await state.get_data()
     await admins.send_order(msg.from_user.id, msg.from_user.username, data['time_order'],
                             data['time_payment'], data['sum'], data['name'], msg.text)
-    await msg.answer('Ваш заказ передан менеджеру!', reply_markup=kb.kb_shop_choosing(msg.from_user.id))
+    await msg.answer('Спасибо за заказ! Наш менеджер свяжется с Вами в ближайшее время!', reply_markup=kb.kb_shop_choosing(msg.from_user.id))
     cart.delete_all(msg.from_user.id)
     try:
         os.remove('cart/cart_{callback.from_user.username}.txt')

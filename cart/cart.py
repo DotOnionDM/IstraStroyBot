@@ -61,8 +61,8 @@ def item_info(user_id: str, id_item: int):
 def change_cnt(user_id: str, user_data: dict) -> None:
     id_item = user_data['id_item']
     new_cnt = user_data['count']
-    new_sum = user_data['sum'] * 100
-    new_sum_sale = user_data['sumsale'] * 100
+    new_sum = user_data['sum']
+    new_sum_sale = user_data['sumsale']
     con = sqlite3.connect("data.db")
     cur = con.cursor()
     create_table(user_id)
@@ -167,25 +167,25 @@ async def def_cart_view(user_id) -> str:
     for [id_item, shop, art, name, price, saleprice, count, sm, salesm] in user_cart:
         cnt += 1
         txt += f"ID: {id_item}\nМагазин: {shop}\nАртикул: {art}\nНазвание: {name}\nЦена в магазине: {price/100} руб.\nЦена со скидкой: {saleprice/100} руб.\nКоличество: {count}\nСтоимость в магазине: {sm/100} руб.\nСтоимость со скидкой: {salesm/100} руб.\n\n"
-        final_sum += int(sm) / 100
-        final_sale_sum += int(salesm) / 100
+        final_sum += int(sm)
+        final_sale_sum += int(salesm)
 
     other_order = select_other_order(user_id)
     if (other_order):
         cnt += 1
         txt += other_order + '\n\n'
     else:
-        txt += 'Индивидуальный заказ отсутствует.\n\n'
+        txt += 'Индивидуальный заказ:\n\nОтсутствует.\n\n'
 
     text_order = select_text_order(user_id)
     if (text_order):
         cnt += 1
         txt += text_order + '\n\n'
     else:
-        txt += 'Комментарий к заказу отсутствует.\n\n'
+        txt += 'Комментарий к заказу:\n\nОтсутствует.\n\n'
 
-    txt += f"Общая стоимость всех товаров:\nв магазине: {final_sum} руб.\nсо скидкой: {final_sale_sum} руб."
-    return (txt, cnt)
+    txt += f"Стоимость в магазине: {final_sum/100} руб.\nСо скидкой Бригадира: {final_sale_sum/100} руб."
+    return (txt, cnt, final_sale_sum)
 
 def add_text_order(user_id, text_order) -> None:
     con = sqlite3.connect("data.db")

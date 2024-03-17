@@ -48,8 +48,11 @@ async def h_lm_art(msg: MSG, state: FSMContext):
     article = msg.text
     ret = lm_parser.requests_parser(article)
     if len(ret) == len(text.item_not_find):
+        return await msg.answer(text=text.item_not_find2)
+        '''
         await msg.answer(text=text.item_not_find, reply_markup=kb.kb_shop_choosing(msg.from_user.id))
         return await States.choose_shop.set()
+        '''
     await def_ask_count(article, ret[0], ret[1], msg.from_user.id, state)
 
 
@@ -62,8 +65,11 @@ async def h_obi_art(msg: MSG, state: FSMContext):
     article = msg.text
     ret = obi_parser.requests_parser(article)
     if len(ret) == len(text.item_not_find):
+        return await msg.answer(text=text.item_not_find2)
+        '''
         await msg.answer(text=text.item_not_find, reply_markup=kb.kb_shop_choosing(msg.from_user.id))
         return await States.choose_shop.set()
+        '''
     price = int(ret[1].split('.')[0])
     await def_ask_count(article, ret[0], price, msg.from_user.id, state)
 
@@ -77,8 +83,11 @@ async def h_petr_art(msg: MSG, state: FSMContext):
     article = msg.text
     ret = petr_parser.requests_parser(article)
     if len(ret) == len(text.item_not_find):
+        return await msg.answer(text=text.item_not_find2)
+        '''
         await msg.answer(text=text.item_not_find, reply_markup=kb.kb_shop_choosing(msg.from_user.id))
         return await States.choose_shop.set()
+        '''
     price = int("".join(ret[1].split()[:-1]))
     await def_ask_count(article, ret[0], price, msg.from_user.id, state)
 
@@ -92,8 +101,11 @@ async def h_vi_art(msg: MSG, state: FSMContext):
     article = msg.text
     ret = vi_parser.parser(article)
     if ret is None:
+        return await msg.answer(text=text.item_not_find2)
+        '''
         await msg.answer(text=text.item_not_find, reply_markup=kb.kb_shop_choosing(msg.from_user.id))
         return await States.choose_shop.set()
+        '''
     price = int("".join(ret[1].split()[:-1]))
     await def_ask_count(article, ret[0], price, msg.from_user.id, state)
 
@@ -101,16 +113,16 @@ async def h_vi_art(msg: MSG, state: FSMContext):
 async def def_count_msg(t, user_data, chat_id):
     if t.isdigit() and int(t) > 0:
         cnt = int(t)
+        sm = int(user_data['price']) * cnt
+        salesm = int(user_data['saleprice'] * 100) / 100 * cnt
+        return cnt, sm, salesm
     elif t == '0':
         await bot.send_message(chat_id=chat_id, text=text.choose_shop, reply_markup=kb.kb_shop_choosing(chat_id))
         await States.choose_shop.set()
-        return None, None
+        return None, None, None
     else:
         await bot.send_message(chat_id=chat_id, text=text.incorrect_number)
-        return None, None
-    sm = int(user_data['price']) * cnt
-    salesm = int(user_data['saleprice'] * 100) / 100 * cnt
-    return cnt, sm, salesm
+        return None, None, None
 
 
 async def h_count_msg(msg: MSG, state: FSMContext):
